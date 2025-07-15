@@ -35,7 +35,7 @@ You can run this portfolio locally or deploy your own version using Vercel.
 ### Clone and Install
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
-cd YOUR-REPO-NAME
+git clone https://github.com/CsiporAntal/Antal-s-Portfolio.git
+cd Antal-s-Portfolio
 npm install
 npm run dev
