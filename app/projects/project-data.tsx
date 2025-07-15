@@ -16,6 +16,6 @@ export const projects: Project[] = [
     title: "Antal's Portfolio",
     year: 2023,
     description: "My personal portfolio website",
-    url: "https://opendeeplearning.xyz/",
+    url: "https://github.com/CsiporAntal/Antal-s-Portfolio?tab=readme-ov-file",
   },
 ];
