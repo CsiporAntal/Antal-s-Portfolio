@@ -4,7 +4,7 @@ This is my personal portfolio website, built to showcase my work as a PLC progra
 
 > ⚠️ This is a **customized and personal** version of Nextfolio — not just a clone.
 
-![Preview](public/preview.jpg) <!-- optional if you have a preview image -->
+![Preview](public/preview.png) <!-- optional if you have a preview image -->
 
 ---
 
