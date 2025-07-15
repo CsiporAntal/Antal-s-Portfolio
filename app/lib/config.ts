@@ -1,10 +1,10 @@
 export const metaData = {
-  baseUrl: "https://nextfolio-template.vercel.app/",
+  baseUrl: "https://antal-s-portfolio.vercel.app",
   title: "Antal's Portfolio",
   name: "Antal",
   ogImage: "/opengraph-image.png",
   description:
-    "A clean, fast, and lightweight portfolio built with Next.js, Vercel, and Tailwind CSS for optimal performance.",
+      "Personal portfolio of Csipor Antal — PLC programmer and web developer based in Romania.",
 };
 
 export const socialLinks = {
