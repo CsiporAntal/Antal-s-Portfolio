@@ -19,10 +19,11 @@ export default function Page() {
 
         <h1 className="mb-8 text-2xl font-medium group">
           Hi, I'm Csipor Antal{" "}
-          <span className="inline-block transition-transform duration-300 group-hover:rotate-[20deg] group-hover:scale-110 origin-bottom-left">
-          👋
-        </span>
+          <span className="inline-block origin-bottom-left group-hover:animate-[wave_0.8s_ease-in-out]">
+    👋
+  </span>
         </h1>
+
 
         <div className="prose prose-neutral dark:prose-invert">
           <p>

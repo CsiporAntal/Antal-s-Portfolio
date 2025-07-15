@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
-@import "./components/tweet.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -155,4 +154,14 @@ table {
 
 .title {
   text-wrap: balance;
+}
+
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(15deg); }
+  40% { transform: rotate(-15deg); }
+  60% { transform: rotate(10deg); }
+  80% { transform: rotate(-10deg); }
+  100% { transform: rotate(0deg); }
 }
