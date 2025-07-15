@@ -8,13 +8,13 @@ export interface Project {
 export const projects: Project[] = [
   {
     title: "EDU Dashboard",
-    year: 2024,
+    year: 2025,
     description: "Romanian education dashboard",
     url: "https://github.com/CsiporAntal/Edu-Dashboard",
   },
   {
     title: "Antal's Portfolio",
-    year: 2023,
+    year: 2025,
     description: "My personal portfolio website",
     url: "https://github.com/CsiporAntal/Antal-s-Portfolio?tab=readme-ov-file",
   },
