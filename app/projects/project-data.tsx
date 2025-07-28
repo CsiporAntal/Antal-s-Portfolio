@@ -18,4 +18,10 @@ export const projects: Project[] = [
     description: "My personal portfolio website",
     url: "https://github.com/CsiporAntal/Antal-s-Portfolio?tab=readme-ov-file",
   },
+  {
+    title: "ModInvest.ro",
+    year: 2025,
+    description: "Construction company website",
+    url: "https://modinvest.ro",
+  },
 ];

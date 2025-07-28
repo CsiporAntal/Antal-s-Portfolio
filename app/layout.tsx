@@ -47,8 +47,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
-}: {
+                                     children,
+                                   }: {
   children: React.ReactNode;
 }) {
   return (
@@ -77,20 +77,38 @@ export default function RootLayout({
             title="JSON Feed"
         />
       </head>
-      <body className="antialiased flex flex-col items-center justify-center mx-auto mt-2 lg:mt-8 mb-12">
+      <body className="antialiased min-h-screen transition-colors duration-300">
       <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
       >
-        <main className="flex-auto min-w-0 mt-2 md:mt-6 flex flex-col px-6 sm:px-4 md:px-0 max-w-[624px] w-full">
-          <Navbar/>
-          {children}
-          <Footer/>
-          <Analytics/>
-          <SpeedInsights/>
-        </main>
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-200 via-indigo-100 to-purple-100 dark:from-slate-900 dark:via-purple-900/20 dark:to-slate-900 text-slate-800 dark:text-white transition-colors duration-300">
+          {/* Navigation */}
+          <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300" id="navbar">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+              <Navbar />
+            </div>
+          </header>
+
+          {/* Main Content */}
+          <main className="flex-1 w-full overflow-visible">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-4">
+              {children}
+            </div>
+          </main>
+
+          {/* Footer */}
+          <footer className="w-full border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+              <Footer />
+            </div>
+          </footer>
+        </div>
+
+        <Analytics />
+        <SpeedInsights />
       </ThemeProvider>
       </body>
       </html>

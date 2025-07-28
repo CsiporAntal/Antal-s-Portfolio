@@ -23,7 +23,6 @@
 
 /* Dark theme colors */
 .dark {
-  background-color: #111010;
   --sh-class: #4c97f8;
   --sh-identifier: white;
   --sh-sign: #8996a3;
@@ -37,6 +36,22 @@
 
 html {
   min-width: 360px;
+  transition: background 0.3s ease;
+}
+
+/* Light theme background - darker with more purple tones */
+html:not(.dark) {
+  background: linear-gradient(to bottom right, #e2e8f0, #c7d2fe, #ddd6fe);
+}
+
+/* Dark theme background */
+html.dark {
+  background: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a);
+}
+
+body {
+  background: transparent !important;
+  transition: color 0.3s ease;
 }
 
 .prose {
