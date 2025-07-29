@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X, Heart, Smartphone } from 'lucide-react';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 // Particle system (matching main page exactly)
 interface Particle {
@@ -523,16 +524,56 @@ export default function Photos() {
   const [selectedImage, setSelectedImage] = useState<PhotoImage | null>(null);
   const [modalImages, setModalImages] = useState<PhotoImage[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [currentZoom, setCurrentZoom] = useState(1);
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const transformRef = useRef<any>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
+
+  const openModal = (image: PhotoImage, category: string) => {
+    let imagesToShow: PhotoImage[];
+    
+    if (category === 'favorites') {
+      imagesToShow = photoData.filter(img => img.category === 'favorites');
+    } else {
+      imagesToShow = photoData.filter(img => img.phone === category);
+    }
+    
+    setModalImages(imagesToShow);
+    setSelectedImage(image);
+    setCurrentImageIndex(imagesToShow.findIndex(img => img.id === image.id));
+    
+    // Reset image and container sizes
+    setTimeout(() => {
+      // updateImageAndContainerSizes(); // Removed
+    }, 100);
+  };
+
+  const closeModal = () => {
+    setSelectedImage(null);
+    setModalImages([]);
+    setCurrentImageIndex(0);
+  };
+
+  const nextImage = () => {
+    if (modalImages.length > 0) {
+      const newIndex = (currentImageIndex + 1) % modalImages.length;
+      setCurrentImageIndex(newIndex);
+      setTimeout(() => {
+        // updateImageAndContainerSizes(); // Removed
+      }, 100);
+    }
+  };
+
+  const prevImage = () => {
+    if (modalImages.length > 0) {
+      const newIndex = (currentImageIndex - 1 + modalImages.length) % modalImages.length;
+      setCurrentImageIndex(newIndex);
+      setTimeout(() => {
+        // updateImageAndContainerSizes(); // Removed
+      }, 100);
+    }
+  };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -565,225 +606,6 @@ export default function Photos() {
     };
   }, [mousePosition]);
 
-  const openModal = (image: PhotoImage, category: string) => {
-    let imagesToShow: PhotoImage[];
-    
-    if (category === 'favorites') {
-      imagesToShow = photoData.filter(img => img.category === 'favorites');
-    } else {
-      imagesToShow = photoData.filter(img => img.phone === category);
-    }
-    
-    setModalImages(imagesToShow);
-    setSelectedImage(image);
-    setCurrentImageIndex(imagesToShow.findIndex(img => img.id === image.id));
-    setZoomLevel(1);
-    setPanPosition({ x: 0, y: 0 });
-    setIsZoomed(false);
-    
-    // Reset image and container sizes
-    setTimeout(() => {
-      updateImageAndContainerSizes();
-    }, 100);
-  };
-
-  const closeModal = () => {
-    setSelectedImage(null);
-    setModalImages([]);
-    setCurrentImageIndex(0);
-    setIsZoomed(false);
-    setZoomLevel(1);
-    setPanPosition({ x: 0, y: 0 });
-    setIsDragging(false);
-  };
-
-  const nextImage = () => {
-    if (modalImages.length > 0) {
-      const newIndex = (currentImageIndex + 1) % modalImages.length;
-      setCurrentImageIndex(newIndex);
-      setZoomLevel(1);
-      setPanPosition({ x: 0, y: 0 });
-      setIsZoomed(false);
-      setTimeout(() => {
-        updateImageAndContainerSizes();
-      }, 100);
-    }
-  };
-
-  const prevImage = () => {
-    if (modalImages.length > 0) {
-      const newIndex = (currentImageIndex - 1 + modalImages.length) % modalImages.length;
-      setCurrentImageIndex(newIndex);
-      setZoomLevel(1);
-      setPanPosition({ x: 0, y: 0 });
-      setIsZoomed(false);
-      setTimeout(() => {
-        updateImageAndContainerSizes();
-      }, 100);
-    }
-  };
-
-  const updateImageAndContainerSizes = () => {
-    if (imageRef.current && containerRef.current) {
-      const imgRect = imageRef.current.getBoundingClientRect();
-      const containerRect = containerRef.current.getBoundingClientRect();
-      
-      setImageSize({
-        width: imgRect.width,
-        height: imgRect.height
-      });
-      
-      setContainerSize({
-        width: containerRect.width,
-        height: containerRect.height
-      });
-      
-      // Re-clamp pan position after size update with a longer delay
-      setTimeout(() => {
-        const clampedPan = clampPanPosition(panPosition.x, panPosition.y);
-        setPanPosition(clampedPan);
-      }, 50);
-    }
-  };
-
-  const calculatePanBounds = () => {
-    if (!imageSize.width || !imageSize.height || !containerSize.width || !containerSize.height) {
-      return { maxX: 0, maxY: 0, minX: 0, minY: 0 };
-    }
-
-    // Calculate how much the scaled image extends beyond the container
-    const scaledImageWidth = imageSize.width * zoomLevel;
-    const scaledImageHeight = imageSize.height * zoomLevel;
-    
-    // Calculate the maximum pan distance
-    // When image is larger than container, we can pan by the difference
-    const maxPanX = Math.max(0, (scaledImageWidth - containerSize.width) / 2);
-    const maxPanY = Math.max(0, (scaledImageHeight - containerSize.height) / 2);
-    
-    return {
-      maxX: maxPanX,
-      maxY: maxPanY,
-      minX: -maxPanX,
-      minY: -maxPanY
-    };
-  };
-
-  const clampPanPosition = (x: number, y: number) => {
-    const bounds = calculatePanBounds();
-    return {
-      x: Math.max(bounds.minX, Math.min(bounds.maxX, x)),
-      y: Math.max(bounds.minY, Math.min(bounds.maxY, y))
-    };
-  };
-
-  const handleZoom = (newZoom: number, centerX?: number, centerY?: number) => {
-    const clampedZoom = Math.max(0.5, Math.min(5, newZoom));
-    
-    if (centerX !== undefined && centerY !== undefined && containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-      
-      // Get the point in the image that the mouse is over (in screen coordinates)
-      const mouseX = centerX - containerRect.left - containerRect.width / 2;
-      const mouseY = centerY - containerRect.top - containerRect.height / 2;
-      
-      // Calculate the world coordinates of the point under mouse before zoom
-      const worldX = (mouseX - panPosition.x) / zoomLevel;
-      const worldY = (mouseY - panPosition.y) / zoomLevel;
-      
-      // Calculate new pan position to keep the mouse point fixed
-      const newPanX = mouseX - worldX * clampedZoom;
-      const newPanY = mouseY - worldY * clampedZoom;
-      
-      // Update zoom and pan position together to prevent shifting
-      setZoomLevel(clampedZoom);
-      setIsZoomed(clampedZoom > 1);
-      setPanPosition({ x: newPanX, y: newPanY });
-      
-      // Clamp pan position after a brief delay to ensure zoom is applied
-      setTimeout(() => {
-        const clampedPan = clampPanPosition(newPanX, newPanY);
-        if (clampedPan.x !== newPanX || clampedPan.y !== newPanY) {
-          setPanPosition(clampedPan);
-        }
-      }, 10);
-    } else {
-      setZoomLevel(clampedZoom);
-      setIsZoomed(clampedZoom > 1);
-      
-      // Clamp existing pan position to new zoom bounds
-      setTimeout(() => {
-        const clampedPan = clampPanPosition(panPosition.x, panPosition.y);
-        setPanPosition(clampedPan);
-      }, 10);
-    }
-  };
-
-  const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (isZoomed && e.button === 0) {
-      e.preventDefault();
-      setIsDragging(true);
-      setLastMousePos({ x: e.clientX, y: e.clientY });
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && isZoomed) {
-      e.preventDefault();
-      
-      // Calculate raw mouse movement
-      const deltaX = e.clientX - lastMousePos.x;
-      const deltaY = e.clientY - lastMousePos.y;
-      
-      // Apply the movement directly to pan position
-      const newPanX = panPosition.x + deltaX;
-      const newPanY = panPosition.y + deltaY;
-      
-      // Clamp the pan position to bounds
-      const clampedPan = clampPanPosition(newPanX, newPanY);
-      setPanPosition(clampedPan);
-      
-      // Update last mouse position
-      setLastMousePos({ x: e.clientX, y: e.clientY });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const zoomSpeed = 0.05;
-    const delta = e.deltaY > 0 ? -zoomSpeed : zoomSpeed;
-    const newZoom = zoomLevel + delta;
-    
-    handleZoom(newZoom, e.clientX, e.clientY);
-  };
-
-  // Update sizes when image loads or window resizes
-  useEffect(() => {
-    const handleResize = () => {
-      updateImageAndContainerSizes();
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Update sizes when current image changes
-  useEffect(() => {
-    if (selectedImage) {
-      const timer = setTimeout(() => {
-        updateImageAndContainerSizes();
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedImage, currentImageIndex]);
-
   // Keyboard navigation and body scroll lock
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -796,15 +618,13 @@ export default function Photos() {
           prevImage();
         } else if (e.key === '+' || e.key === '=') {
           e.preventDefault();
-          handleZoom(zoomLevel + 0.5);
+          transformRef.current?.zoomIn();
         } else if (e.key === '-') {
           e.preventDefault();
-          handleZoom(zoomLevel - 0.5);
+          transformRef.current?.zoomOut();
         } else if (e.key === '0') {
           e.preventDefault();
-          setZoomLevel(1);
-          setIsZoomed(false);
-          setPanPosition({ x: 0, y: 0 });
+          transformRef.current?.resetTransform();
         }
       }
     };
@@ -826,7 +646,7 @@ export default function Photos() {
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
     };
-  }, [selectedImage, zoomLevel]);
+  }, [selectedImage]);
 
   const favorites = photoData.filter(img => img.category === 'favorites');
   const phoneImages = phoneCategories.map(category => ({
@@ -852,7 +672,7 @@ export default function Photos() {
         </div>
       </div>
 
-      <div className="relative z-10 w-full px-8 py-6">
+      <div className="relative z-10 w-full px-4 sm:px-8 py-4 sm:py-6">
         {/* Header Section */}
         <ScrollTriggeredSection animationType="slideUp" className="mb-16 px-4">
           <div className="text-center">
@@ -962,99 +782,118 @@ export default function Photos() {
         >
           <div 
             ref={containerRef}
-            className="relative max-w-7xl max-h-[90vh] mx-4 overflow-hidden"
+            className="relative w-full h-full sm:max-w-7xl sm:max-h-[90vh] sm:mx-4 flex flex-col justify-center items-center overflow-hidden"
           >
             {/* Close button */}
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 p-3 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-2xl sm:text-base"
+              style={{ touchAction: 'manipulation' }}
             >
-              <X size={24} />
+              <X size={28} className="sm:hidden" />
+              <X size={24} className="hidden sm:inline" />
             </button>
-
-            {/* Zoom controls */}
-            <div className="absolute top-4 left-4 z-20 flex gap-2">
-              <button
-                onClick={() => handleZoom(zoomLevel + 0.5)}
-                className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200"
-                title="Zoom In (+)"
-              >
-                <span className="text-lg font-bold">+</span>
-              </button>
-              <button
-                onClick={() => handleZoom(zoomLevel - 0.5)}
-                className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200"
-                title="Zoom Out (-)"
-              >
-                <span className="text-lg font-bold">−</span>
-              </button>
-              <button
-                onClick={() => {
-                  setZoomLevel(1);
-                  setIsZoomed(false);
-                  setPanPosition({ x: 0, y: 0 });
-                }}
-                className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200"
-                title="Reset Zoom (0)"
-              >
-                <span className="text-sm font-bold">0</span>
-              </button>
-            </div>
 
             {/* Navigation arrows */}
             <button
               onClick={prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-3 sm:p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-3xl sm:text-base"
+              style={{ touchAction: 'manipulation' }}
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={32} className="sm:hidden" />
+              <ChevronLeft size={24} className="hidden sm:inline" />
             </button>
 
             <button
               onClick={nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-3 sm:p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-3xl sm:text-base"
+              style={{ touchAction: 'manipulation' }}
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={32} className="sm:hidden" />
+              <ChevronRight size={24} className="hidden sm:inline" />
             </button>
 
-            {/* Image container with zoom and pan */}
-            <div 
-              className={`relative overflow-hidden rounded-lg select-none ${
-                isZoomed ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
-              }`}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onWheel={handleWheel}
-            >
-              <div
-                className="transition-transform duration-200 ease-out"
-                style={{
-                  transform: `translate(${panPosition.x}px, ${panPosition.y}px) scale(${zoomLevel})`,
-                  transformOrigin: 'center center'
+            {/* Image container with react-zoom-pan-pinch */}
+            <div className="w-full h-full flex items-center justify-center">
+              <TransformWrapper
+                initialScale={1}
+                minScale={0.25}
+                maxScale={4}
+                doubleClick={{
+                  disabled: true,
                 }}
+                wheel={{
+                  step: 0.2,
+                  wheelDisabled: false,
+                  touchPadDisabled: false,
+                }}
+                pinch={{
+                  step: 10,
+                }}
+                centerOnInit={true}
+                limitToBounds={true}
+                smooth={true}
+                alignmentAnimation={{
+                  sizeX: 0,
+                  sizeY: 0,
+                  velocityAlignmentTime: 0.3,
+                }}
+                onTransformed={(transform) => {
+                  setCurrentZoom(transform.state.scale);
+                }}
+                ref={transformRef}
               >
-                <Image
-                  ref={imageRef}
-                  src={modalImages[currentImageIndex]?.src || ''}
-                  alt={modalImages[currentImageIndex]?.alt || ''}
-                  width={1200}
-                  height={800}
-                  className="max-w-full max-h-[80vh] object-contain"
-                  onLoad={updateImageAndContainerSizes}
-                  onError={() => console.error('Image failed to load')}
-                />
+                <TransformComponent
+                  wrapperClass="w-full h-full"
+                  contentClass="w-full h-full flex items-center justify-center"
+                >
+                  <Image
+                    ref={imageRef}
+                    src={modalImages[currentImageIndex]?.src || ''}
+                    alt={modalImages[currentImageIndex]?.alt || ''}
+                    width={1200}
+                    height={800}
+                    className="max-w-full max-h-full object-contain"
+                    onError={() => console.error('Image failed to load')}
+                  />
+                </TransformComponent>
+              </TransformWrapper>
+
+              {/* Zoom Controls */}
+              <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20 flex gap-2">
+                <button
+                  onClick={() => transformRef.current?.zoomIn()}
+                  className="p-3 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-2xl sm:text-base"
+                  style={{ touchAction: 'manipulation' }}
+                  title="Zoom In"
+                >
+                  <span className="text-lg font-bold">+</span>
+                </button>
+                <button
+                  onClick={() => transformRef.current?.zoomOut()}
+                  className="p-3 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-2xl sm:text-base"
+                  style={{ touchAction: 'manipulation' }}
+                  title="Zoom Out"
+                >
+                  <span className="text-lg font-bold">−</span>
+                </button>
+                <button
+                  onClick={() => transformRef.current?.resetTransform()}
+                  className="p-3 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-2xl sm:text-base"
+                  style={{ touchAction: 'manipulation' }}
+                  title="Reset Zoom"
+                >
+                  <span className="text-sm font-bold">100%</span>
+                </button>
               </div>
             </div>
-              
+
             {/* Image counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm mb-12 sm:mb-0">
               {currentImageIndex + 1} / {modalImages.length}
-              {isZoomed && (
-                <span className="ml-2 text-yellow-300">
-                  {Math.round(zoomLevel * 100)}%
-                </span>
-              )}
+              <span className="ml-2 text-yellow-300">
+                {Math.round(currentZoom * 100)}%
+              </span>
             </div>
           </div>
         </div>

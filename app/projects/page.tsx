@@ -516,9 +516,9 @@ export default function Projects() {
         </div>
       </div>
 
-      <div className="relative z-10 w-full px-8 py-6">
+      <div className="relative z-10 w-full px-4 sm:px-8 py-4 sm:py-6">
         {/* Header Section */}
-        <ScrollTriggeredSection animationType="slideUp" className="mb-16 px-4">
+        <ScrollTriggeredSection animationType="slideUp" className="mb-16 px-2 sm:px-4">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent select-none">
               My Projects
@@ -535,7 +535,7 @@ export default function Projects() {
             <ScrollTriggeredSection 
               key={index} 
               animationType={index % 2 === 0 ? "slideLeft" : "slideRight"} 
-              className="px-4"
+              className="px-2 sm:px-4"
             >
               <Link
                 href={project.url}
@@ -548,7 +548,7 @@ export default function Projects() {
                   }
                 }}
               >
-                <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-purple-200/50 dark:border-white/10 hover:border-purple-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 hover:scale-[1.02] cursor-pointer select-none">
+                <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-3 sm:p-6 md:p-8 border border-purple-200/50 dark:border-white/10 hover:border-purple-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 hover:scale-[1.02] cursor-pointer select-none">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">

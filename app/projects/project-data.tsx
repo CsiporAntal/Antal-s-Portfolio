@@ -13,9 +13,9 @@ export const projects: Project[] = [
     url: "https://github.com/CsiporAntal/Edu-Dashboard",
   },
   {
-    title: "Antal's Portfolio",
+    title: "Csipor Antal's Portfolio",
+    description: "My personal portfolio website built with Next.js, featuring interactive particle effects, responsive design, and modern web technologies.",
     year: 2025,
-    description: "My personal portfolio website",
     url: "https://github.com/CsiporAntal/Antal-s-Portfolio?tab=readme-ov-file",
   },
   {

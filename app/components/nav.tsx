@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ThemeSwitch } from "./theme-switch";
 import { metaData } from "../lib/config";
 import { useEffect, useState, useRef } from "react";
-import { Home, FolderOpen, Camera, User } from "lucide-react";
+import { Home, FolderOpen, Camera } from "lucide-react";
 
 const navItems = {
   "/": { name: "Home", icon: Home },
@@ -46,18 +47,24 @@ export function Navbar() {
   }, [isScrolled]);
 
   return (
-    <nav className={`transition-all duration-500 ease-out ${isScrolled ? 'py-2 sm:py-3' : 'py-4 sm:py-6'}`}>
+    <nav className={`transition-all duration-500 ease-out ${isScrolled ? 'py-1 sm:py-2' : 'py-2 sm:py-3'}`}>
       <div className="flex items-center justify-between">
         {/* Logo/Title */}
         <div className="flex items-center">
           <Link 
             href="/" 
-            className={`flex items-center gap-2 font-semibold transition-all duration-500 ease-out select-none ${
+            className={`flex items-center gap-2 font-semibold transition-all duration-500 ease-out select-none bg-transparent ${
               isScrolled ? 'text-lg sm:text-xl' : 'text-xl sm:text-2xl'
             }`}
           >
-            <User size={isScrolled ? 20 : 24} className="text-blue-600 dark:text-blue-400" />
-            {metaData.title}
+            <Image 
+              src="/logo.png" 
+              alt="Logo" 
+              width={isScrolled ? 40 : 48} 
+              height={isScrolled ? 40 : 48} 
+              className="bg-transparent object-contain" 
+            />
+            <span className="bg-transparent">{metaData.title}</span>
           </Link>
         </div>
 

@@ -1,4 +1,4 @@
-# Antal's Interactive Portfolio
+# Csipor Antal's Interactive Portfolio
 
 A modern, interactive portfolio website showcasing my work as a PLC programmer and web developer. Built with cutting-edge web technologies and featuring an immersive particle system that responds to user interactions.
 

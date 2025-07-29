@@ -86,7 +86,7 @@ export default function RootLayout({
       >
         <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-200 via-indigo-100 to-purple-100 dark:from-slate-900 dark:via-purple-900/20 dark:to-slate-900 text-slate-800 dark:text-white transition-colors duration-300">
           {/* Navigation */}
-          <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300" id="navbar">
+          <header className="sticky top-0 z-50 w-full border-b bg-background/30 backdrop-blur supports-[backdrop-filter]:bg-background/20 transition-all duration-300" id="navbar">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
               <Navbar />
             </div>

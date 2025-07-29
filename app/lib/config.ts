@@ -1,6 +1,6 @@
 export const metaData = {
   baseUrl: "https://csantal.dev",
-  title: "Antal's Portfolio",
+  title: "Csipor Antal's Portfolio",
   name: "Csipor Antal Portfolio",
   ogImage: "/profile.png",
   description:
