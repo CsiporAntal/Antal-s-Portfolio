@@ -36,6 +36,7 @@ const photoSwipeStyles = `
     --pswp-spacing-mobile: 10px;
     --pswp-transition-duration: 0.3s;
     --pswp-transition-timing-function: cubic-bezier(0.4, 0, 0.22, 1);
+    z-index: 40 !important;
   }
   
   .pswp__bg {
@@ -185,63 +186,12 @@ const photoSwipeStyles = `
     letter-spacing: 0.5px !important;
   }
   
-  /* Close button styling */
+  /* Hide default close button */
   .pswp__button--close {
-    background: rgba(0, 0, 0, 0.6) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 50% !important;
-    width: 50px !important;
-    height: 50px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.22, 1) !important;
-    opacity: 0.8 !important;
-    position: fixed !important;
-    top: 20px !important;
-    right: 20px !important;
-    z-index: 1000 !important;
-  }
-  
-  .pswp__button--close:hover {
-    background: rgba(0, 0, 0, 0.8) !important;
-    border-color: rgba(255, 255, 255, 0.4) !important;
-    transform: scale(1.1) !important;
-    opacity: 1 !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-  }
-  
-  .pswp__button--close::before,
-  .pswp__button--close::after {
-    content: '' !important;
-    position: absolute !important;
-    width: 20px !important;
-    height: 2px !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    transition: all 0.2s ease !important;
-  }
-  
-  .pswp__button--close::before {
-    transform: rotate(45deg) !important;
-  }
-  
-  .pswp__button--close::after {
-    transform: rotate(-45deg) !important;
-  }
-  
-  .pswp__button--close:hover::before,
-  .pswp__button--close:hover::after {
-    background: #fff !important;
-    transform: scale(1.1) !important;
-  }
-  
-  /* Hide duplicate close buttons */
-  .pswp__button--close:not(:first-of-type) {
     display: none !important;
   }
   
-  /* Counter styling - fix positioning */
+  /* Counter styling - positioned below navbar */
   .pswp__counter {
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(10px) !important;
@@ -251,7 +201,7 @@ const photoSwipeStyles = `
     font-weight: 600 !important;
     letter-spacing: 0.5px !important;
     position: fixed !important;
-    top: 20px !important;
+    top: 80px !important;
     left: 20px !important;
     z-index: 1000 !important;
     text-align: center !important;
@@ -261,75 +211,10 @@ const photoSwipeStyles = `
     min-width: 60px !important;
   }
   
-  /* Hide duplicate counters */
-  .pswp__counter:not(:first-of-type) {
-    display: none !important;
-  }
-  
-  /* Ensure proper z-index for all UI elements */
-  .pswp__ui {
-    z-index: 1000 !important;
-  }
-  
-  .pswp__ui--idle .pswp__ui__element {
-    opacity: 1 !important;
-  }
-  
-  /* Ensure close button is always visible */
-  .pswp__button--close {
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: fixed !important;
-    top: 20px !important;
-    right: 20px !important;
-    z-index: 1001 !important;
-  }
-  
-  /* Ensure default close button is visible and properly styled */
-  .pswp__button--close {
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: fixed !important;
-    top: 20px !important;
-    right: 20px !important;
-    z-index: 1001 !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 50% !important;
-    width: 50px !important;
-    height: 50px !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.22, 1) !important;
-  }
-  
-  .pswp__button--close:hover {
-    background: rgba(0, 0, 0, 0.8) !important;
-    border-color: rgba(255, 255, 255, 0.4) !important;
-    transform: scale(1.1) !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-  }
-  
-  /* Style the default close button icon */
-  .pswp__button--close::before {
-    content: '×' !important;
-    font-size: 30px !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    font-weight: bold !important;
-    line-height: 1 !important;
-  }
-  
-  .pswp__button--close:hover::before {
-    color: #fff !important;
-  }
-  
-  /* Manual close button */
+  /* Custom close button - positioned at same height as counter */
   .pswp-close-btn {
     position: fixed !important;
-    top: 20px !important;
+    top: 80px !important;
     right: 20px !important;
     width: 50px !important;
     height: 50px !important;
@@ -358,10 +243,26 @@ const photoSwipeStyles = `
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
   }
   
-  /* Custom zoom button */
+  /* Hide duplicate counters */
+  .pswp__counter:not(:first-of-type) {
+    display: none !important;
+  }
+  
+  /* Ensure proper z-index for all UI elements */
+  .pswp__ui {
+    z-index: 1000 !important;
+  }
+  
+  .pswp__ui--idle .pswp__ui__element {
+    opacity: 1 !important;
+  }
+  
+
+  
+  /* Custom zoom button - positioned below navbar */
   .pswp-zoom-btn {
     position: fixed !important;
-    top: 20px !important;
+    top: 80px !important;
     right: 80px !important;
     width: 50px !important;
     height: 50px !important;
@@ -402,7 +303,7 @@ const photoSwipeStyles = `
   
   .pswp__button--zoom--custom {
     position: fixed !important;
-    top: 20px !important;
+    top: 80px !important;
     right: 80px !important;
     z-index: 1001 !important;
     background: rgba(0, 0, 0, 0.6) !important;
@@ -447,50 +348,30 @@ const photoSwipeStyles = `
     visibility: visible !important;
   }
   
-  /* Ensure navbar remains accessible */
-  nav, .nav, .navbar, header {
-    z-index: 9999 !important;
-    position: relative !important;
-  }
-  
-  /* Ensure PhotoSwipe doesn't block navigation */
-  .pswp {
-    z-index: 1000 !important;
-  }
-  
-  /* Ensure navbar and other page elements remain accessible */
-  nav, .nav, .navbar, header, .header {
-    z-index: 9999 !important;
-    position: relative !important;
-    pointer-events: auto !important;
-  }
-  
-  /* Ensure PhotoSwipe doesn't block navigation */
-  .pswp {
-    z-index: 1000 !important;
-  }
-  
-  /* Allow clicks to pass through PhotoSwipe background when not over content */
-  .pswp__bg {
-    pointer-events: none !important;
-  }
-  
-  .pswp__container {
-    pointer-events: auto !important;
-  }
-  
   /* Ensure PhotoSwipe doesn't interfere when closed */
   .pswp:not(.pswp--open) {
     display: none !important;
+  }
+  
+  /* DISABLED: Ensure PhotoSwipe doesn't block navbar when closed */
+  /* .pswp:not(.pswp--open) {
     pointer-events: none !important;
     z-index: -1 !important;
   }
   
-  /* Ensure navigation has higher priority */
-  nav, header, #navbar {
+  /* Ensure navbar is always above PhotoSwipe */
+  #navbar {
     z-index: 9999 !important;
+    position: relative !important;
     pointer-events: auto !important;
   }
+  
+  /* Ensure navbar links are always clickable */
+  #navbar a, #navbar button {
+    z-index: 10000 !important;
+    position: relative !important;
+    pointer-events: auto !important;
+  } */
 
   /* Force arrow positioning with higher specificity */
   .pswp .pswp__button--arrow--left {
@@ -511,61 +392,9 @@ const photoSwipeStyles = `
     display: flex !important;
     visibility: visible !important;
     opacity: 0.8 !important;
-    pointer-events: auto !important;
   }
   
-  /* Ensure navigation always works by default with maximum priority */
-  nav a, 
-  nav button,
-  header a,
-  header button,
-  #navbar a,
-  #navbar button,
-  .nav a,
-  .navbar a {
-    pointer-events: auto !important;
-    z-index: 10000 !important;
-    position: relative !important;
-    display: inline-flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
   
-  /* Override only when PhotoSwipe is actually open */
-  body.pswp-open nav a, 
-  body.pswp-open nav button,
-  body.pswp-open header a,
-  body.pswp-open header button,
-  body.pswp-open #navbar a,
-  body.pswp-open #navbar button {
-    pointer-events: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-  }
-  
-  /* Only hide navbar when PhotoSwipe is actually open and visible */
-  body.pswp-open nav,
-  body.pswp-open .nav,
-  body.pswp-open .navbar,
-  body.pswp-open header,
-  body.pswp-open .header {
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-  
-  /* Ensure PhotoSwipe container allows interactions only when open */
-  .pswp--open {
-    pointer-events: auto !important;
-  }
-  
-  .pswp--open .pswp__container {
-    pointer-events: auto !important;
-  }
-  
-  .pswp--open .pswp__item {
-    pointer-events: auto !important;
-  }
 `;
 
 // Particle system (matching main page exactly)
@@ -873,9 +702,10 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
       const isLink = target.closest('a') !== null;
       const isButton = target.closest('button') !== null;
       const isNavigation = target.closest('nav, header, #navbar') !== null;
+      const isInteractiveElement = target.closest('input, select, textarea, [role="button"], [tabindex]') !== null;
       
-      // Don't create particles and don't prevent default for navigation elements
-      if (isLink || isButton || isNavigation) {
+      // Don't create particles for any interactive elements - exit immediately
+      if (isLink || isButton || isNavigation || isInteractiveElement) {
         return;
       }
       
@@ -924,27 +754,39 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
       ));
     }
 
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('click', handleClick, { passive: true, capture: false });
-    window.addEventListener('resize', handleResize, { passive: true });
+    // DISABLED: Event listeners for testing
+    // let mouseMoveThrottle = false;
+    // const throttledMouseMove = (e: MouseEvent) => {
+    //   if (!mouseMoveThrottle) {
+    //     mouseMoveThrottle = true;
+    //     setTimeout(() => { mouseMoveThrottle = false; }, 50); // Throttle to 20fps
+    //     handleMouseMove(e);
+    //   }
+    // };
+    // 
+    // window.addEventListener('mousemove', throttledMouseMove, { passive: true });
+    // window.addEventListener('click', handleClick, { passive: true, capture: false });
+    // window.addEventListener('resize', handleResize, { passive: true });
     
-    const ambientInterval = setInterval(() => {
-      if (particlesRef.current.length < 35) {
-        particlesRef.current.push(createParticle(
-          Math.random() * window.innerWidth + window.scrollX,
-          Math.random() * window.innerHeight + window.scrollY,
-          'ambient'
-        ));
-      }
-    }, 600);
+    // DISABLED: Ambient interval for testing
+    // const ambientInterval = setInterval(() => {
+    //   if (particlesRef.current.length < 20) { // Reduced max particles
+    //     particlesRef.current.push(createParticle(
+    //       Math.random() * window.innerWidth + window.scrollX,
+    //       Math.random() * window.innerHeight + window.scrollY,
+    //       'ambient'
+    //     ));
+    //   }
+    // }, 1000); // Increased interval to 1 second
     
     animationRef.current = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('click', handleClick);
-      window.removeEventListener('resize', handleResize);
-      clearInterval(ambientInterval);
+      // DISABLED: Event listener cleanup
+      // window.removeEventListener('mousemove', throttledMouseMove);
+      // window.removeEventListener('click', handleClick);
+      // window.removeEventListener('resize', handleResize);
+      // clearInterval(ambientInterval);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
@@ -975,7 +817,11 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ background: 'transparent' }}
+      style={{ 
+        background: 'transparent',
+        pointerEvents: 'none', // Ensure canvas never blocks clicks
+        zIndex: 0
+      }}
     />
   );
 };
@@ -1140,8 +986,49 @@ export default function Photos() {
   const [isPhotoSwipeOpen, setIsPhotoSwipeOpen] = useState(false);
   const photoSwipeRef = useRef<PhotoSwipe | null>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
+  
+  // DISABLED: Function to ensure navbar is always accessible
+  // const ensureNavbarAccessibility = useCallback(() => {
+  //   const navbar = document.getElementById('navbar');
+  //   if (navbar) {
+  //     (navbar as HTMLElement).style.zIndex = '9999';
+  //     (navbar as HTMLElement).style.position = 'sticky';
+  //     (navbar as HTMLElement).style.pointerEvents = 'auto';
+  //     
+  //     const navbarLinks = navbar.querySelectorAll('a, button');
+  //     navbarLinks.forEach(link => {
+  //       (link as HTMLElement).style.pointerEvents = 'auto';
+  //       (link as HTMLElement).style.zIndex = '10000';
+  //       (link as HTMLElement).style.position = 'relative';
+  //     });
+  //   }
+  // }, []);
+  
+  // DISABLED: Ensure navbar is always on top and clickable
+  // useEffect(() => {
+  //   ensureNavbarAccessibility();
+  //   
+  //   // Also ensure PhotoSwipe doesn't interfere when closed
+  //   const pswpElements = document.querySelectorAll('.pswp');
+  //   pswpElements.forEach(pswp => {
+  //     if (!pswp.classList.contains('pswp--open')) {
+  //       (pswp as HTMLElement).style.pointerEvents = 'none';
+  //       (pswp as HTMLElement).style.zIndex = '-1';
+  //     }
+  //   });
+  // }, [ensureNavbarAccessibility]);
+  
+  // DISABLED: Periodically ensure navbar accessibility
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     ensureNavbarAccessibility();
+  //   }, 1000); // Check every second
+  //   
+  //   return () => clearInterval(interval);
+  // }, [ensureNavbarAccessibility]);
 
   const openPhotoSwipe = async (image: PhotoImage, category: string) => {
+    console.log('Opening PhotoSwipe for:', image.alt);
     let imagesToShow: PhotoImage[];
     
     if (category === 'favorites') {
@@ -1160,10 +1047,8 @@ export default function Photos() {
         width: dimensions.width,
         height: dimensions.height,
         alt: img.alt,
-        // Add proper image loading
         msrc: img.src, // thumbnail
         title: img.alt,
-        // Ensure proper aspect ratio handling
         w: dimensions.width,
         h: dimensions.height
       };
@@ -1184,7 +1069,6 @@ export default function Photos() {
       allowPanToNext: true,
       zoom: true,
       maxZoomLevel: 4,
-      // Better padding to prevent edge touching
       paddingFn: (viewportSize) => {
         return {
           top: 40,
@@ -1193,29 +1077,17 @@ export default function Photos() {
           right: 80
         };
       },
-      // UI settings
       closeOnVerticalDrag: true,
       showHideOpacity: true,
-      // Enable hardware acceleration
       bgOpacity: 0.95,
       spacing: 0.1
     });
     
     // Track PhotoSwipe open/close events
     photoSwipeRef.current.on('uiRegister', function() {
-      // PhotoSwipe is opening
       setIsPhotoSwipeOpen(true);
-      document.body.classList.add('pswp-open');
       
-      // Hide navigation immediately but preserve the elements
-      const navElements = document.querySelectorAll('nav, .nav, .navbar, header, .header');
-      navElements.forEach(el => {
-        (el as HTMLElement).style.visibility = 'hidden';
-        (el as HTMLElement).style.opacity = '0';
-        (el as HTMLElement).style.pointerEvents = 'none';
-      });
-      
-      // Add close button if it doesn't exist
+      // Add custom close button
       requestAnimationFrame(() => {
         const pswpElement = document.querySelector('.pswp');
         if (pswpElement && !pswpElement.querySelector('.pswp-close-btn')) {
@@ -1227,146 +1099,78 @@ export default function Photos() {
           });
           pswpElement.appendChild(closeBtn);
         }
-        
-        // Add custom zoom button if it doesn't exist
-        if (pswpElement && !pswpElement.querySelector('.pswp-zoom-btn')) {
-          const zoomBtn = document.createElement('button');
-          zoomBtn.className = 'pswp-zoom-btn';
-          zoomBtn.innerHTML = '🔍';
-          zoomBtn.addEventListener('click', () => {
-            // Toggle zoom functionality
-            if (photoSwipeRef.current) {
-              photoSwipeRef.current.zoomTo(2);
-            }
-          });
-          pswpElement.appendChild(zoomBtn);
-        }
       });
     });
     
     photoSwipeRef.current.on('close', function() {
-      // PhotoSwipe is closing
       setIsPhotoSwipeOpen(false);
-      document.body.classList.remove('pswp-open');
-      
-      // Restore navigation visibility immediately
-      const navElements = document.querySelectorAll('nav, .nav, .navbar, header, .header');
-      navElements.forEach(el => {
-        (el as HTMLElement).style.visibility = '';
-        (el as HTMLElement).style.opacity = '';
-        (el as HTMLElement).style.pointerEvents = '';
-      });
-      
-      // Ensure body scroll is restored
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
-      
-      // Force remove any PhotoSwipe elements that might be lingering
-      setTimeout(() => {
-        const pswpElements = document.querySelectorAll('.pswp');
-        pswpElements.forEach(el => {
-          if (!el.classList.contains('pswp--open')) {
-            el.remove();
-          }
-        });
-      }, 100);
     });
     
     photoSwipeRef.current.init();
+    console.log('PhotoSwipe initialized successfully');
   };
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
+  // DISABLED: Mouse position tracking
+  // useEffect(() => {
+  //   let ticking = false;
+  //   
+  //   const handleMouseMove = (e: MouseEvent) => {
+  //     if (!ticking) {
+  //       requestAnimationFrame(() => {
+  //         setMousePosition({ x: e.clientX, y: e.clientY });
+  //         ticking = false;
+  //       });
+  //       ticking = true;
+  //     }
+  //   };
+  // 
+  //   window.addEventListener('mousemove', handleMouseMove, { passive: true });
+  //   return () => window.removeEventListener('mousemove', handleMouseMove);
+  // }, []);
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Smooth mouse follower
-  useEffect(() => {
-    const smoothFollow = () => {
-      setSmoothMousePosition(prev => {
-        const lerp = 0.15;
-        return {
-          x: prev.x + (mousePosition.x - prev.x) * lerp,
-          y: prev.y + (mousePosition.y - prev.y) * lerp
-        };
-      });
-      animationFrameRef.current = requestAnimationFrame(smoothFollow);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(smoothFollow);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [mousePosition]);
+  // DISABLED: Smooth mouse follower
+  // useEffect(() => {
+  //   const smoothFollow = () => {
+  //     setSmoothMousePosition(prev => {
+  //       const lerp = 0.15;
+  //       return {
+  //         x: prev.x + (mousePosition.x - prev.x) * lerp,
+  //         y: prev.y + (mousePosition.y - prev.y) * lerp
+  //       };
+  //     });
+  //     animationFrameRef.current = requestAnimationFrame(smoothFollow);
+  //   };
+  // 
+  //   animationFrameRef.current = requestAnimationFrame(smoothFollow);
+  // 
+  //   return () => {
+  //     if (animationFrameRef.current) {
+  //       cancelAnimationFrame(animationFrameRef.current);
+  //     }
+  //   };
+  // }, [mousePosition]);
 
   // Inject PhotoSwipe styles
   useEffect(() => {
     const styleElement = document.createElement('style');
     styleElement.id = 'photoswipe-custom-styles';
     styleElement.textContent = photoSwipeStyles;
-    document.head.appendChild(styleElement);
+    
+    if (!document.getElementById('photoswipe-custom-styles')) {
+      document.head.appendChild(styleElement);
+    }
 
     return () => {
       const existingStyle = document.getElementById('photoswipe-custom-styles');
       if (existingStyle) {
-        document.head.removeChild(existingStyle);
+        existingStyle.remove();
       }
     };
   }, []);
 
-  // Ensure navigation always works
-  useEffect(() => {
-    const ensureNavigationWorks = () => {
-      const navElements = document.querySelectorAll('nav a, header a, #navbar a, nav button, header button, #navbar button');
-      navElements.forEach(el => {
-        (el as HTMLElement).style.pointerEvents = 'auto';
-        (el as HTMLElement).style.zIndex = '10000';
-        (el as HTMLElement).style.position = 'relative';
-      });
-    };
 
-    // Add click handler specifically for navigation to ensure it works
-    const handleNavClick = (e: Event) => {
-      const target = e.target as HTMLElement;
-      const navElement = target.closest('nav, header, #navbar');
-      const linkElement = target.closest('a[href]');
-      
-      if (navElement && linkElement) {
-        // This is a navigation link click - ensure it works
-        e.stopImmediatePropagation = () => {}; // Prevent other handlers from stopping
-        
-        // Force the navigation to work
-        const href = (linkElement as HTMLAnchorElement).getAttribute('href');
-        if (href && href.startsWith('/')) {
-          // Use Next.js router for internal links
-          setTimeout(() => {
-            window.location.href = href;
-          }, 0);
-        }
-      }
-    };
-
-    // Run initially
-    ensureNavigationWorks();
-    
-    // Add high-priority navigation click handler
-    document.addEventListener('click', handleNavClick, { capture: true });
-    
-    // Run periodically to ensure navigation stays working
-    const interval = setInterval(ensureNavigationWorks, 1000);
-    
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('click', handleNavClick, { capture: true });
-    };
-  }, []);
 
   // Cleanup PhotoSwipe on unmount
   useEffect(() => {
@@ -1375,13 +1179,7 @@ export default function Photos() {
         photoSwipeRef.current.destroy();
       }
       
-      // Ensure navigation is restored on unmount
-      const navElements = document.querySelectorAll('nav, header, #navbar');
-      navElements.forEach(el => {
-        (el as HTMLElement).style.visibility = '';
-        (el as HTMLElement).style.opacity = '';
-        (el as HTMLElement).style.pointerEvents = '';
-      });
+      // Clean up if needed
     };
   }, []);
 
@@ -1392,14 +1190,15 @@ export default function Photos() {
   }));
 
   return (
-    <div className="relative min-h-screen overflow-visible">
-      {/* Mouse follower */}
-      <div
-        className="hidden md:block fixed pointer-events-none z-50"
+    <div className="relative min-h-screen overflow-visible z-0">
+      {/* DISABLED: Mouse follower */}
+      {/* <div
+        className="hidden md:block fixed pointer-events-none z-20"
         style={{
           left: smoothMousePosition.x - 12,
           top: smoothMousePosition.y - 12,
-          transform: 'translate(0, 0)'
+          transform: 'translate(0, 0)',
+          pointerEvents: 'none' // Ensure this never blocks clicks
         }}
       >
         <div className="absolute inset-0 w-6 h-6 bg-gradient-to-r from-blue-400/30 to-purple-400/30 rounded-full blur-sm animate-pulse"></div>
@@ -1407,7 +1206,7 @@ export default function Photos() {
           <div className="absolute top-0.5 left-0.5 w-2 h-2 bg-white/60 rounded-full blur-[1px]"></div>
           <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-blue-300/80 rounded-full animate-ping"></div>
         </div>
-      </div>
+      </div> */}
 
       <div className="relative z-10 w-full px-4 sm:px-8 py-4 sm:py-6">
         {/* Header Section */}
@@ -1515,7 +1314,7 @@ export default function Photos() {
 
 
 
-      <ParticleSystem isPhotoSwipeOpen={isPhotoSwipeOpen} />
+      {/* DISABLED: ParticleSystem isPhotoSwipeOpen={isPhotoSwipeOpen} /> */}
     </div>
   );
 }

@@ -47,7 +47,8 @@ export function Navbar() {
   }, [isScrolled]);
 
   return (
-    <nav className={`transition-all duration-500 ease-out ${isScrolled ? 'py-1 sm:py-2' : 'py-2 sm:py-3'}`}>
+      <nav className={`relative z-50 transition-all duration-500 ease-out ${isScrolled ? 'py-1 sm:py-2' : 'py-2 sm:py-3'}`}>
+
       <div className="flex items-center justify-between">
         {/* Logo/Title */}
         <div className="flex items-center">
