@@ -14,7 +14,7 @@ export const projects: Project[] = [
   },
   {
     title: "Csipor Antal's Portfolio",
-    description: "My personal portfolio website built with Next.js, featuring interactive particle effects, responsive design, and modern web technologies.",
+    description: "My personal portfolio website, featuring interactive particle effects, responsive design, and modern web technologies.",
     year: 2025,
     url: "https://github.com/CsiporAntal/Antal-s-Portfolio?tab=readme-ov-file",
   },

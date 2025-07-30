@@ -2,8 +2,571 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, X, Heart, Smartphone } from 'lucide-react';
-import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { Heart, Smartphone } from 'lucide-react';
+import PhotoSwipe from 'photoswipe';
+import 'photoswipe/style.css';
+
+// Custom PhotoSwipe styles
+const photoSwipeStyles = `
+  .pswp {
+    --pswp-bg: rgba(0, 0, 0, 0.95);
+    --pswp-placeholder-bg: rgba(0, 0, 0, 0.3);
+    --pswp-error-text-color: #fff;
+    --pswp-preloader-color: rgba(255, 255, 255, 0.8);
+    --pswp-counter-color: rgba(255, 255, 255, 0.8);
+    --pswp-fullscreen-expand-color: rgba(255, 255, 255, 0.8);
+    --pswp-fullscreen-expand-hover-color: #fff;
+    --pswp-fullscreen-expand-active-color: #fff;
+    --pswp-close-color: rgba(255, 255, 255, 0.8);
+    --pswp-close-hover-color: #fff;
+    --pswp-close-active-color: #fff;
+    --pswp-arrow-color: rgba(255, 255, 255, 0.8);
+    --pswp-arrow-hover-color: #fff;
+    --pswp-arrow-active-color: #fff;
+    --pswp-arrow-size: 50px;
+    --pswp-arrow-size-mobile: 40px;
+    --pswp-counter-font-size: 14px;
+    --pswp-preloader-size: 50px;
+    --pswp-preloader-size-mobile: 40px;
+    --pswp-fullscreen-expand-size: 50px;
+    --pswp-fullscreen-expand-size-mobile: 40px;
+    --pswp-close-size: 50px;
+    --pswp-close-size-mobile: 40px;
+    --pswp-spacing: 20px;
+    --pswp-spacing-mobile: 10px;
+    --pswp-transition-duration: 0.3s;
+    --pswp-transition-timing-function: cubic-bezier(0.4, 0, 0.22, 1);
+  }
+  
+  .pswp__bg {
+    backdrop-filter: blur(10px);
+  }
+  
+  .pswp__counter {
+    font-family: inherit;
+    font-weight: 500;
+  }
+  
+  .pswp__button {
+    transition: all 0.2s ease;
+  }
+  
+  .pswp__button:hover {
+    transform: scale(1.1);
+  }
+  
+  .pswp__img {
+    object-fit: contain !important;
+    max-width: none !important;
+    max-height: none !important;
+  }
+  
+  .pswp__container {
+    transition: none !important;
+  }
+  
+  .pswp__item {
+    transition: none !important;
+  }
+  
+  .pswp__img {
+    transition: none !important;
+  }
+  
+  /* Custom navigation arrow styling */
+  .pswp__button--arrow--left,
+  .pswp__button--arrow--right {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 60px !important;
+    height: 60px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.22, 1) !important;
+    opacity: 0.8 !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 2000 !important;
+    margin: 0 !important;
+  }
+  
+  /* Position left arrow on the left side */
+  .pswp__button--arrow--left {
+    left: 20px !important;
+    right: unset !important;
+  }
+  
+  /* Position right arrow on the right side */
+  .pswp__button--arrow--right {
+    right: 20px !important;
+    left: unset !important;
+  }
+  
+  .pswp__button--arrow--left:hover,
+  .pswp__button--arrow--right:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    opacity: 1 !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .pswp__button--arrow--left:active,
+  .pswp__button--arrow--right:active {
+    transform: scale(0.95) !important;
+  }
+  
+  /* Arrow icon styling */
+  .pswp__button--arrow--left::before,
+  .pswp__button--arrow--right::before {
+    content: '' !important;
+    width: 20px !important;
+    height: 20px !important;
+    border: 2px solid rgba(255, 255, 255, 0.9) !important;
+    border-top: none !important;
+    border-right: none !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .pswp__button--arrow--left::before {
+    transform: rotate(45deg) translate(2px, -2px) !important;
+  }
+  
+  .pswp__button--arrow--right::before {
+    transform: rotate(225deg) translate(2px, -2px) !important;
+  }
+  
+  .pswp__button--arrow--left:hover::before,
+  .pswp__button--arrow--right:hover::before {
+    border-color: #fff !important;
+    transform: scale(1.1) !important;
+  }
+  
+  /* Mobile responsive arrows */
+  @media (max-width: 768px) {
+    .pswp__button--arrow--left,
+    .pswp__button--arrow--right {
+      width: 50px !important;
+      height: 50px !important;
+    }
+    
+    .pswp__button--arrow--left::before,
+    .pswp__button--arrow--right::before {
+      width: 16px !important;
+      height: 16px !important;
+    }
+  }
+  
+  /* Optimized transitions for better performance */
+  .pswp__item {
+    transition: opacity 0.2s ease-out !important;
+  }
+  
+  .pswp__img {
+    transition: opacity 0.2s ease-out !important;
+  }
+  
+  .pswp__container {
+    transition: transform 0.2s ease-out !important;
+  }
+  
+  /* Counter styling */
+  .pswp__counter {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+  }
+  
+  /* Close button styling */
+  .pswp__button--close {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 50px !important;
+    height: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.22, 1) !important;
+    opacity: 0.8 !important;
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 1000 !important;
+  }
+  
+  .pswp__button--close:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    opacity: 1 !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .pswp__button--close::before,
+  .pswp__button--close::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 20px !important;
+    height: 2px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .pswp__button--close::before {
+    transform: rotate(45deg) !important;
+  }
+  
+  .pswp__button--close::after {
+    transform: rotate(-45deg) !important;
+  }
+  
+  .pswp__button--close:hover::before,
+  .pswp__button--close:hover::after {
+    background: #fff !important;
+    transform: scale(1.1) !important;
+  }
+  
+  /* Hide duplicate close buttons */
+  .pswp__button--close:not(:first-of-type) {
+    display: none !important;
+  }
+  
+  /* Counter styling - fix positioning */
+  .pswp__counter {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+    position: fixed !important;
+    top: 20px !important;
+    left: 20px !important;
+    z-index: 1000 !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 60px !important;
+  }
+  
+  /* Hide duplicate counters */
+  .pswp__counter:not(:first-of-type) {
+    display: none !important;
+  }
+  
+  /* Ensure proper z-index for all UI elements */
+  .pswp__ui {
+    z-index: 1000 !important;
+  }
+  
+  .pswp__ui--idle .pswp__ui__element {
+    opacity: 1 !important;
+  }
+  
+  /* Ensure close button is always visible */
+  .pswp__button--close {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 1001 !important;
+  }
+  
+  /* Ensure default close button is visible and properly styled */
+  .pswp__button--close {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 1001 !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 50px !important;
+    height: 50px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.22, 1) !important;
+  }
+  
+  .pswp__button--close:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  /* Style the default close button icon */
+  .pswp__button--close::before {
+    content: '×' !important;
+    font-size: 30px !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+  }
+  
+  .pswp__button--close:hover::before {
+    color: #fff !important;
+  }
+  
+  /* Manual close button */
+  .pswp-close-btn {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 50px !important;
+    height: 50px !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 30px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    z-index: 1001 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.22, 1) !important;
+    border: none !important;
+    outline: none !important;
+  }
+  
+  .pswp-close-btn:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    color: #fff !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  /* Custom zoom button */
+  .pswp-zoom-btn {
+    position: fixed !important;
+    top: 20px !important;
+    right: 80px !important;
+    width: 50px !important;
+    height: 50px !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    z-index: 1001 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.22, 1) !important;
+    border: none !important;
+    outline: none !important;
+  }
+  
+  .pswp-zoom-btn:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    color: #fff !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  /* Fix arrow positioning */
+  .pswp__button--arrow--left,
+  .pswp__button--arrow--right {
+    z-index: 1000 !important;
+  }
+  
+  /* Hide default zoom button and position custom one to the left of close button */
+  .pswp__button--zoom:not(.pswp__button--zoom--custom) {
+    display: none !important;
+  }
+  
+  .pswp__button--zoom--custom {
+    position: fixed !important;
+    top: 20px !important;
+    right: 80px !important;
+    z-index: 1001 !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 50px !important;
+    height: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.22, 1) !important;
+  }
+  
+  .pswp__button--zoom--custom:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  /* Style zoom button icon */
+  .pswp__button--zoom--custom::before {
+    content: '🔍' !important;
+    font-size: 18px !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    line-height: 1 !important;
+  }
+  
+  .pswp__button--zoom--custom:hover::before {
+    color: #fff !important;
+  }
+  
+  /* Ensure UI elements are always visible */
+  .pswp__ui__element {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* Ensure navbar remains accessible */
+  nav, .nav, .navbar, header {
+    z-index: 9999 !important;
+    position: relative !important;
+  }
+  
+  /* Ensure PhotoSwipe doesn't block navigation */
+  .pswp {
+    z-index: 1000 !important;
+  }
+  
+  /* Ensure navbar and other page elements remain accessible */
+  nav, .nav, .navbar, header, .header {
+    z-index: 9999 !important;
+    position: relative !important;
+    pointer-events: auto !important;
+  }
+  
+  /* Ensure PhotoSwipe doesn't block navigation */
+  .pswp {
+    z-index: 1000 !important;
+  }
+  
+  /* Allow clicks to pass through PhotoSwipe background when not over content */
+  .pswp__bg {
+    pointer-events: none !important;
+  }
+  
+  .pswp__container {
+    pointer-events: auto !important;
+  }
+  
+  /* Ensure PhotoSwipe doesn't interfere when closed */
+  .pswp:not(.pswp--open) {
+    display: none !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+  }
+  
+  /* Ensure navigation has higher priority */
+  nav, header, #navbar {
+    z-index: 9999 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Force arrow positioning with higher specificity */
+  .pswp .pswp__button--arrow--left {
+    left: 20px !important;
+    right: auto !important;
+    position: absolute !important;
+  }
+  
+  .pswp .pswp__button--arrow--right {
+    right: 20px !important;
+    left: auto !important;
+    position: absolute !important;
+  }
+
+  /* Ensure arrows are visible and clickable */
+  .pswp--open .pswp__button--arrow--left,
+  .pswp--open .pswp__button--arrow--right {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 0.8 !important;
+    pointer-events: auto !important;
+  }
+  
+  /* Ensure navigation always works by default with maximum priority */
+  nav a, 
+  nav button,
+  header a,
+  header button,
+  #navbar a,
+  #navbar button,
+  .nav a,
+  .navbar a {
+    pointer-events: auto !important;
+    z-index: 10000 !important;
+    position: relative !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Override only when PhotoSwipe is actually open */
+  body.pswp-open nav a, 
+  body.pswp-open nav button,
+  body.pswp-open header a,
+  body.pswp-open header button,
+  body.pswp-open #navbar a,
+  body.pswp-open #navbar button {
+    pointer-events: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+  
+  /* Only hide navbar when PhotoSwipe is actually open and visible */
+  body.pswp-open nav,
+  body.pswp-open .nav,
+  body.pswp-open .navbar,
+  body.pswp-open header,
+  body.pswp-open .header {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  
+  /* Ensure PhotoSwipe container allows interactions only when open */
+  .pswp--open {
+    pointer-events: auto !important;
+  }
+  
+  .pswp--open .pswp__container {
+    pointer-events: auto !important;
+  }
+  
+  .pswp--open .pswp__item {
+    pointer-events: auto !important;
+  }
+`;
 
 // Particle system (matching main page exactly)
 interface Particle {
@@ -24,7 +587,7 @@ const colors = [
   '#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'
 ];
 
-const ParticleSystem = () => {
+const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -291,6 +854,9 @@ const ParticleSystem = () => {
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
       
+      // Don't create particles if PhotoSwipe is open
+      if (isPhotoSwipeOpen) return;
+      
       const now = Date.now();
       if (now - lastParticleTime.current > 50) {
         particlesRef.current.push(createParticle(e.clientX + window.scrollX, e.clientY + window.scrollY, 'mouse'));
@@ -299,12 +865,23 @@ const ParticleSystem = () => {
     };
 
     const handleClick = (e: MouseEvent) => {
+      // Don't create particles if PhotoSwipe is open
+      if (isPhotoSwipeOpen) return;
+      
       // Check if the click target is a link or inside a link
       const target = e.target as HTMLElement;
       const isLink = target.closest('a') !== null;
+      const isButton = target.closest('button') !== null;
+      const isNavigation = target.closest('nav, header, #navbar') !== null;
       
-      // Don't create particles if clicking on a link (will redirect)
-      if (isLink) {
+      // Don't create particles and don't prevent default for navigation elements
+      if (isLink || isButton || isNavigation) {
+        return;
+      }
+      
+      // Don't create particles if clicking on PhotoSwipe elements
+      const isPhotoSwipeElement = target.closest('.pswp') !== null;
+      if (isPhotoSwipeElement) {
         return;
       }
       
@@ -347,9 +924,9 @@ const ParticleSystem = () => {
       ));
     }
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('click', handleClick);
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('click', handleClick, { passive: true, capture: false });
+    window.addEventListener('resize', handleResize, { passive: true });
     
     const ambientInterval = setInterval(() => {
       if (particlesRef.current.length < 35) {
@@ -377,6 +954,9 @@ const ParticleSystem = () => {
   // Expose hover particle creation
   useEffect(() => {
     (window as any).createHoverParticles = (element: HTMLElement) => {
+      // Don't create particles if PhotoSwipe is open
+      if (isPhotoSwipeOpen) return;
+      
       const rect = element.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2 + window.scrollX;
       const centerY = rect.top + rect.height / 2 + window.scrollY;
@@ -389,7 +969,7 @@ const ParticleSystem = () => {
         particlesRef.current.push(createParticle(centerX + offsetX, centerY + offsetY, 'hover'));
       }
     };
-  }, [createParticle]);
+  }, [createParticle, isPhotoSwipeOpen]);
 
   return (
     <canvas
@@ -470,43 +1050,79 @@ interface PhotoImage {
   phone?: string;
 }
 
+// Helper function to get image dimensions
+const getImageDimensions = (src: string): Promise<{ width: number; height: number }> => {
+  return new Promise((resolve) => {
+    const img = document.createElement('img') as HTMLImageElement;
+    img.onload = () => {
+      resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    };
+    img.onerror = () => {
+      // Fallback to default dimensions if image fails to load
+      resolve({ width: 4000, height: 3000 });
+    };
+    img.src = src;
+  });
+};
+
 // Sample image data - you can replace these with your actual photos
 const photoData: PhotoImage[] = [
   // Favorites
-  { id: 'fav1', src: '/photos/photo1.jpg', alt: 'Roman columns', category: 'favorites' },
-  { id: 'fav2', src: '/photos/photo2.jpg', alt: 'Big Ben', category: 'favorites' },
-  { id: 'fav3', src: '/photos/photo3.jpg', alt: 'Sacré-Cœur Basilica', category: 'favorites' },
-  { id: 'fav4', src: '/photos/photo4.jpg', alt: 'Eiffel Tower', category: 'favorites' },
+  { id: 'fav1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823242/IMG_20250531_004947_ljmmhk.jpg', alt: 'Xiaomi 15 Ultra - Sunset', category: 'favorites' },
+  { id: 'fav2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823238/IMG_20250529_001749_p4ovrn.jpg', alt: 'Xiaomi 15 Ultra - Architecture', category: 'favorites' },
+  { id: 'fav3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823237/IMG_20250531_151750_vhjhnv.jpg', alt: 'Xiaomi 15 Ultra - Street Scene', category: 'favorites' },
+  { id: 'fav4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823235/IMG_20250601_183012_dzgcyi.jpg', alt: 'Xiaomi 15 Ultra - City View', category: 'favorites' },
   
   // Xiaomi 15 Ultra
-  { id: 'xiaomi1', src: '/photos/photo1.jpg', alt: 'Xiaomi 15 Ultra Photo 1', category: 'phones', phone: 'xiaomi-15-ultra' },
-  { id: 'xiaomi2', src: '/photos/photo2.jpg', alt: 'Xiaomi 15 Ultra Photo 2', category: 'phones', phone: 'xiaomi-15-ultra' },
-  { id: 'xiaomi3', src: '/photos/photo3.jpg', alt: 'Xiaomi 15 Ultra Photo 3', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823242/IMG_20250531_004947_ljmmhk.jpg', alt: 'Xiaomi 15 Ultra Photo 1', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823238/IMG_20250529_001749_p4ovrn.jpg', alt: 'Xiaomi 15 Ultra Photo 2', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823237/IMG_20250531_151750_vhjhnv.jpg', alt: 'Xiaomi 15 Ultra Photo 3', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823235/IMG_20250601_183012_dzgcyi.jpg', alt: 'Xiaomi 15 Ultra Photo 4', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823234/photo_3_eolx0r.jpg', alt: 'Xiaomi 15 Ultra Photo 5', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823234/IMG_20250606_203219_l5hqbr.jpg', alt: 'Xiaomi 15 Ultra Photo 6', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi7', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823233/IMG_20250529_001734_qqnhka.jpg', alt: 'Xiaomi 15 Ultra Photo 7', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi8', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823233/IMG_20250525_174132_gt5nny.jpg', alt: 'Xiaomi 15 Ultra Photo 8', category: 'phones', phone: 'xiaomi-15-ultra' },
+  { id: 'xiaomi9', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823232/IMG_20250525_174016_vc8iem.jpg', alt: 'Xiaomi 15 Ultra Photo 9', category: 'phones', phone: 'xiaomi-15-ultra' },
   
   // Oppo Find X8 Pro
-  { id: 'oppo1', src: '/photos/photo4.jpg', alt: 'Oppo Find X8 Pro Photo 1', category: 'phones', phone: 'oppo-find-x8-pro' },
-  { id: 'oppo2', src: '/photos/photo5.jpg', alt: 'Oppo Find X8 Pro Photo 2', category: 'phones', phone: 'oppo-find-x8-pro' },
-  { id: 'oppo3', src: '/photos/photo6.jpg', alt: 'Oppo Find X8 Pro Photo 3', category: 'phones', phone: 'oppo-find-x8-pro' },
+  { id: 'oppo1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753827564/IMG20250419182939_m%C3%A1solata_ga58wf.jpg', alt: 'Oppo Find X8 Pro Photo 1', category: 'phones', phone: 'oppo-find-x8-pro' },
+  { id: 'oppo2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753827563/IMG20250328173140_m%C3%A1solata_x9ojhh.jpg', alt: 'Oppo Find X8 Pro Photo 2', category: 'phones', phone: 'oppo-find-x8-pro' },
+  { id: 'oppo3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753827563/IMG20250416101834_m%C3%A1solata_ez1c65.jpg', alt: 'Oppo Find X8 Pro Photo 3', category: 'phones', phone: 'oppo-find-x8-pro' },
+  { id: 'oppo4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753827562/IMG20250310142942_m%C3%A1solata_wcmdoa.jpg', alt: 'Oppo Find X8 Pro Photo 4', category: 'phones', phone: 'oppo-find-x8-pro' },
+  { id: 'oppo5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753827561/IMG20250309132525_m%C3%A1solata_rpsw0x.jpg', alt: 'Oppo Find X8 Pro Photo 5', category: 'phones', phone: 'oppo-find-x8-pro' },
+  { id: 'oppo6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753827558/IMG20250226114030_m%C3%A1solata_bpkvlb.jpg', alt: 'Oppo Find X8 Pro Photo 6', category: 'phones', phone: 'oppo-find-x8-pro' },
   
   // One Plus 12
-  { id: 'oneplus1', src: '/photos/photo1.jpg', alt: 'One Plus 12 Photo 1', category: 'phones', phone: 'one-plus-12' },
-  { id: 'oneplus2', src: '/photos/photo2.jpg', alt: 'One Plus 12 Photo 2', category: 'phones', phone: 'one-plus-12' },
-  { id: 'oneplus3', src: '/photos/photo3.jpg', alt: 'One Plus 12 Photo 3', category: 'phones', phone: 'one-plus-12' },
+  { id: 'oneplus1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753832161/IMG_20241226_125301_wvryhw.jpg', alt: 'One Plus 12 Photo 1', category: 'phones', phone: 'one-plus-12' },
+  { id: 'oneplus2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753832163/IMG20241221115154_fmfxpp.jpg', alt: 'One Plus 12 Photo 2', category: 'phones', phone: 'one-plus-12' },
+  { id: 'oneplus3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753832164/IMG20241214132118_nie0uy.jpg', alt: 'One Plus 12 Photo 3', category: 'phones', phone: 'one-plus-12' },
+  { id: 'oneplus4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753832165/IMG20241221115829_bazikz.jpg', alt: 'One Plus 12 Photo 4', category: 'phones', phone: 'one-plus-12' },
+  { id: 'oneplus5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753832167/IMG20241221171753_pxfigb.jpg', alt: 'One Plus 12 Photo 5', category: 'phones', phone: 'one-plus-12' },
+  { id: 'oneplus6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753832174/IMG20250110123253_utpgno.jpg', alt: 'One Plus 12 Photo 6', category: 'phones', phone: 'one-plus-12' },
   
   // Honor Magic 6 Pro
-  { id: 'honor1', src: '/photos/photo4.jpg', alt: 'Honor Magic 6 Pro Photo 1', category: 'phones', phone: 'honor-magic-6-pro' },
-  { id: 'honor2', src: '/photos/photo5.jpg', alt: 'Honor Magic 6 Pro Photo 2', category: 'phones', phone: 'honor-magic-6-pro' },
-  { id: 'honor3', src: '/photos/photo6.jpg', alt: 'Honor Magic 6 Pro Photo 3', category: 'phones', phone: 'honor-magic-6-pro' },
+  { id: 'honor1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753898391/IMG_20250210_142541_um7lid.jpg', alt: 'Honor Magic 6 Pro Photo 1', category: 'phones', phone: 'honor-magic-6-pro' },
+  { id: 'honor2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753898386/IMG_20250215_102955_b7kmcz.jpg', alt: 'Honor Magic 6 Pro Photo 2', category: 'phones', phone: 'honor-magic-6-pro' },
+  { id: 'honor3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753898385/IMG_20250210_150551_mlq8ts.jpg', alt: 'Honor Magic 6 Pro Photo 3', category: 'phones', phone: 'honor-magic-6-pro' },
+  { id: 'honor4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753898384/IMG_20250210_142735_h90t5f.jpg', alt: 'Honor Magic 6 Pro Photo 4', category: 'phones', phone: 'honor-magic-6-pro' },
+  { id: 'honor5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753898382/IMG_20250210_142625_l0byoy.jpg', alt: 'Honor Magic 6 Pro Photo 5', category: 'phones', phone: 'honor-magic-6-pro' },
+  { id: 'honor6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753898379/IMG_20250210_142524_z6qwmu.jpg', alt: 'Honor Magic 6 Pro Photo 6', category: 'phones', phone: 'honor-magic-6-pro' },
   
   // Huawei P30 Pro
-  { id: 'huawei1', src: '/photos/photo1.jpg', alt: 'Huawei P30 Pro Photo 1', category: 'phones', phone: 'huawei-p30-pro' },
-  { id: 'huawei2', src: '/photos/photo2.jpg', alt: 'Huawei P30 Pro Photo 2', category: 'phones', phone: 'huawei-p30-pro' },
-  { id: 'huawei3', src: '/photos/photo3.jpg', alt: 'Huawei P30 Pro Photo 3', category: 'phones', phone: 'huawei-p30-pro' },
+  { id: 'huawei1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899398/IMG_20241214_130131_mlwl2s.jpg', alt: 'Huawei P30 Pro Photo 1', category: 'phones', phone: 'huawei-p30-pro' },
+  { id: 'huawei2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899396/IMG_20241130_135119_qs17xt.jpg', alt: 'Huawei P30 Pro Photo 2', category: 'phones', phone: 'huawei-p30-pro' },
+  { id: 'huawei3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899395/IMG_20241020_125540_mgld2w.jpg', alt: 'Huawei P30 Pro Photo 3', category: 'phones', phone: 'huawei-p30-pro' },
+  { id: 'huawei4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899394/IMG_20240820_163135_npmyaw.jpg', alt: 'Huawei P30 Pro Photo 4', category: 'phones', phone: 'huawei-p30-pro' },
+  { id: 'huawei5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899392/IMG_20240819_160511_fo12jj.jpg', alt: 'Huawei P30 Pro Photo 5', category: 'phones', phone: 'huawei-p30-pro' },
+  { id: 'huawei6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899389/IMG_20230708_161725_k7orna.jpg', alt: 'Huawei P30 Pro Photo 6', category: 'phones', phone: 'huawei-p30-pro' },
   
   // Nothing CMF 2 Pro
-  { id: 'nothing1', src: '/photos/photo4.jpg', alt: 'Nothing CMF 2 Pro Photo 1', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing2', src: '/photos/photo5.jpg', alt: 'Nothing CMF 2 Pro Photo 2', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing3', src: '/photos/photo6.jpg', alt: 'Nothing CMF 2 Pro Photo 3', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823233/IMG_20250529_001734_qqnhka.jpg', alt: 'Nothing CMF 2 Pro Photo 1', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823233/IMG_20250525_174132_gt5nny.jpg', alt: 'Nothing CMF 2 Pro Photo 2', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823232/IMG_20250525_174016_vc8iem.jpg', alt: 'Nothing CMF 2 Pro Photo 3', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823242/IMG_20250531_004947_ljmmhk.jpg', alt: 'Nothing CMF 2 Pro Photo 4', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823238/IMG_20250529_001749_p4ovrn.jpg', alt: 'Nothing CMF 2 Pro Photo 5', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823237/IMG_20250531_151750_vhjhnv.jpg', alt: 'Nothing CMF 2 Pro Photo 6', category: 'phones', phone: 'nothing-cmf-2-pro' },
 ];
 
 const phoneCategories = [
@@ -521,16 +1137,11 @@ const phoneCategories = [
 export default function Photos() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [smoothMousePosition, setSmoothMousePosition] = useState({ x: 0, y: 0 });
-  const [selectedImage, setSelectedImage] = useState<PhotoImage | null>(null);
-  const [modalImages, setModalImages] = useState<PhotoImage[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [currentZoom, setCurrentZoom] = useState(1);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const transformRef = useRef<any>(null);
+  const [isPhotoSwipeOpen, setIsPhotoSwipeOpen] = useState(false);
+  const photoSwipeRef = useRef<PhotoSwipe | null>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
 
-  const openModal = (image: PhotoImage, category: string) => {
+  const openPhotoSwipe = async (image: PhotoImage, category: string) => {
     let imagesToShow: PhotoImage[];
     
     if (category === 'favorites') {
@@ -539,40 +1150,129 @@ export default function Photos() {
       imagesToShow = photoData.filter(img => img.phone === category);
     }
     
-    setModalImages(imagesToShow);
-    setSelectedImage(image);
-    setCurrentImageIndex(imagesToShow.findIndex(img => img.id === image.id));
+    const startIndex = imagesToShow.findIndex(img => img.id === image.id);
     
-    // Reset image and container sizes
-    setTimeout(() => {
-      // updateImageAndContainerSizes(); // Removed
-    }, 100);
-  };
-
-  const closeModal = () => {
-    setSelectedImage(null);
-    setModalImages([]);
-    setCurrentImageIndex(0);
-  };
-
-  const nextImage = () => {
-    if (modalImages.length > 0) {
-      const newIndex = (currentImageIndex + 1) % modalImages.length;
-      setCurrentImageIndex(newIndex);
-      setTimeout(() => {
-        // updateImageAndContainerSizes(); // Removed
-      }, 100);
+    // Get actual image dimensions for better quality
+    const items = await Promise.all(imagesToShow.map(async (img) => {
+      const dimensions = await getImageDimensions(img.src);
+      return {
+        src: img.src,
+        width: dimensions.width,
+        height: dimensions.height,
+        alt: img.alt,
+        // Add proper image loading
+        msrc: img.src, // thumbnail
+        title: img.alt,
+        // Ensure proper aspect ratio handling
+        w: dimensions.width,
+        h: dimensions.height
+      };
+    }));
+    
+    // Initialize PhotoSwipe
+    if (photoSwipeRef.current) {
+      photoSwipeRef.current.destroy();
     }
-  };
-
-  const prevImage = () => {
-    if (modalImages.length > 0) {
-      const newIndex = (currentImageIndex - 1 + modalImages.length) % modalImages.length;
-      setCurrentImageIndex(newIndex);
+    
+    photoSwipeRef.current = new PhotoSwipe({
+      dataSource: items,
+      index: startIndex,
+      showHideAnimationType: 'fade',
+      showAnimationDuration: 200,
+      hideAnimationDuration: 200,
+      easing: 'ease-out',
+      allowPanToNext: true,
+      zoom: true,
+      maxZoomLevel: 4,
+      // Better padding to prevent edge touching
+      paddingFn: (viewportSize) => {
+        return {
+          top: 40,
+          bottom: 40,
+          left: 80,
+          right: 80
+        };
+      },
+      // UI settings
+      closeOnVerticalDrag: true,
+      showHideOpacity: true,
+      // Enable hardware acceleration
+      bgOpacity: 0.95,
+      spacing: 0.1
+    });
+    
+    // Track PhotoSwipe open/close events
+    photoSwipeRef.current.on('uiRegister', function() {
+      // PhotoSwipe is opening
+      setIsPhotoSwipeOpen(true);
+      document.body.classList.add('pswp-open');
+      
+      // Hide navigation immediately but preserve the elements
+      const navElements = document.querySelectorAll('nav, .nav, .navbar, header, .header');
+      navElements.forEach(el => {
+        (el as HTMLElement).style.visibility = 'hidden';
+        (el as HTMLElement).style.opacity = '0';
+        (el as HTMLElement).style.pointerEvents = 'none';
+      });
+      
+      // Add close button if it doesn't exist
+      requestAnimationFrame(() => {
+        const pswpElement = document.querySelector('.pswp');
+        if (pswpElement && !pswpElement.querySelector('.pswp-close-btn')) {
+          const closeBtn = document.createElement('button');
+          closeBtn.className = 'pswp-close-btn';
+          closeBtn.innerHTML = '×';
+          closeBtn.addEventListener('click', () => {
+            photoSwipeRef.current?.close();
+          });
+          pswpElement.appendChild(closeBtn);
+        }
+        
+        // Add custom zoom button if it doesn't exist
+        if (pswpElement && !pswpElement.querySelector('.pswp-zoom-btn')) {
+          const zoomBtn = document.createElement('button');
+          zoomBtn.className = 'pswp-zoom-btn';
+          zoomBtn.innerHTML = '🔍';
+          zoomBtn.addEventListener('click', () => {
+            // Toggle zoom functionality
+            if (photoSwipeRef.current) {
+              photoSwipeRef.current.zoomTo(2);
+            }
+          });
+          pswpElement.appendChild(zoomBtn);
+        }
+      });
+    });
+    
+    photoSwipeRef.current.on('close', function() {
+      // PhotoSwipe is closing
+      setIsPhotoSwipeOpen(false);
+      document.body.classList.remove('pswp-open');
+      
+      // Restore navigation visibility immediately
+      const navElements = document.querySelectorAll('nav, .nav, .navbar, header, .header');
+      navElements.forEach(el => {
+        (el as HTMLElement).style.visibility = '';
+        (el as HTMLElement).style.opacity = '';
+        (el as HTMLElement).style.pointerEvents = '';
+      });
+      
+      // Ensure body scroll is restored
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      
+      // Force remove any PhotoSwipe elements that might be lingering
       setTimeout(() => {
-        // updateImageAndContainerSizes(); // Removed
+        const pswpElements = document.querySelectorAll('.pswp');
+        pswpElements.forEach(el => {
+          if (!el.classList.contains('pswp--open')) {
+            el.remove();
+          }
+        });
       }, 100);
-    }
+    });
+    
+    photoSwipeRef.current.init();
   };
 
   useEffect(() => {
@@ -606,47 +1306,84 @@ export default function Photos() {
     };
   }, [mousePosition]);
 
-  // Keyboard navigation and body scroll lock
+  // Inject PhotoSwipe styles
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedImage) {
-        if (e.key === 'Escape') {
-          closeModal();
-        } else if (e.key === 'ArrowRight') {
-          nextImage();
-        } else if (e.key === 'ArrowLeft') {
-          prevImage();
-        } else if (e.key === '+' || e.key === '=') {
-          e.preventDefault();
-          transformRef.current?.zoomIn();
-        } else if (e.key === '-') {
-          e.preventDefault();
-          transformRef.current?.zoomOut();
-        } else if (e.key === '0') {
-          e.preventDefault();
-          transformRef.current?.resetTransform();
+    const styleElement = document.createElement('style');
+    styleElement.id = 'photoswipe-custom-styles';
+    styleElement.textContent = photoSwipeStyles;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      const existingStyle = document.getElementById('photoswipe-custom-styles');
+      if (existingStyle) {
+        document.head.removeChild(existingStyle);
+      }
+    };
+  }, []);
+
+  // Ensure navigation always works
+  useEffect(() => {
+    const ensureNavigationWorks = () => {
+      const navElements = document.querySelectorAll('nav a, header a, #navbar a, nav button, header button, #navbar button');
+      navElements.forEach(el => {
+        (el as HTMLElement).style.pointerEvents = 'auto';
+        (el as HTMLElement).style.zIndex = '10000';
+        (el as HTMLElement).style.position = 'relative';
+      });
+    };
+
+    // Add click handler specifically for navigation to ensure it works
+    const handleNavClick = (e: Event) => {
+      const target = e.target as HTMLElement;
+      const navElement = target.closest('nav, header, #navbar');
+      const linkElement = target.closest('a[href]');
+      
+      if (navElement && linkElement) {
+        // This is a navigation link click - ensure it works
+        e.stopImmediatePropagation = () => {}; // Prevent other handlers from stopping
+        
+        // Force the navigation to work
+        const href = (linkElement as HTMLAnchorElement).getAttribute('href');
+        if (href && href.startsWith('/')) {
+          // Use Next.js router for internal links
+          setTimeout(() => {
+            window.location.href = href;
+          }, 0);
         }
       }
     };
 
-    // Lock body scroll when modal is open
-    if (selectedImage) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-    }
-
-    window.addEventListener('keydown', handleKeyDown);
+    // Run initially
+    ensureNavigationWorks();
+    
+    // Add high-priority navigation click handler
+    document.addEventListener('click', handleNavClick, { capture: true });
+    
+    // Run periodically to ensure navigation stays working
+    const interval = setInterval(ensureNavigationWorks, 1000);
+    
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      // Cleanup body scroll lock
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      clearInterval(interval);
+      document.removeEventListener('click', handleNavClick, { capture: true });
     };
-  }, [selectedImage]);
+  }, []);
+
+  // Cleanup PhotoSwipe on unmount
+  useEffect(() => {
+    return () => {
+      if (photoSwipeRef.current) {
+        photoSwipeRef.current.destroy();
+      }
+      
+      // Ensure navigation is restored on unmount
+      const navElements = document.querySelectorAll('nav, header, #navbar');
+      navElements.forEach(el => {
+        (el as HTMLElement).style.visibility = '';
+        (el as HTMLElement).style.opacity = '';
+        (el as HTMLElement).style.pointerEvents = '';
+      });
+    };
+  }, []);
 
   const favorites = photoData.filter(img => img.category === 'favorites');
   const phoneImages = phoneCategories.map(category => ({
@@ -703,7 +1440,8 @@ export default function Photos() {
                 <div
                   key={image.id}
                   className="group cursor-pointer select-none"
-                  onClick={() => openModal(image, 'favorites')}
+                  data-photoswipe-index={favorites.indexOf(image)}
+                  onClick={() => openPhotoSwipe(image, 'favorites')}
                   onMouseEnter={(e) => {
                     if ((window as any).createHoverParticles) {
                       (window as any).createHoverParticles(e.currentTarget);
@@ -749,7 +1487,8 @@ export default function Photos() {
                     <div
                       key={image.id}
                       className="group cursor-pointer select-none"
-                      onClick={() => openModal(image, phoneCategory.id)}
+                      data-photoswipe-index={phoneCategory.images.indexOf(image)}
+                      onClick={() => openPhotoSwipe(image, phoneCategory.id)}
                       onMouseEnter={(e) => {
                         if ((window as any).createHoverParticles) {
                           (window as any).createHoverParticles(e.currentTarget);
@@ -774,132 +1513,9 @@ export default function Photos() {
         </div>
       </div>
 
-      {/* Modal */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-          style={{ overflow: 'hidden' }}
-        >
-          <div 
-            ref={containerRef}
-            className="relative w-full h-full sm:max-w-7xl sm:max-h-[90vh] sm:mx-4 flex flex-col justify-center items-center overflow-hidden"
-          >
-            {/* Close button */}
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 p-3 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-2xl sm:text-base"
-              style={{ touchAction: 'manipulation' }}
-            >
-              <X size={28} className="sm:hidden" />
-              <X size={24} className="hidden sm:inline" />
-            </button>
 
-            {/* Navigation arrows */}
-            <button
-              onClick={prevImage}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-3 sm:p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-3xl sm:text-base"
-              style={{ touchAction: 'manipulation' }}
-            >
-              <ChevronLeft size={32} className="sm:hidden" />
-              <ChevronLeft size={24} className="hidden sm:inline" />
-            </button>
 
-            <button
-              onClick={nextImage}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-3 sm:p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-3xl sm:text-base"
-              style={{ touchAction: 'manipulation' }}
-            >
-              <ChevronRight size={32} className="sm:hidden" />
-              <ChevronRight size={24} className="hidden sm:inline" />
-            </button>
-
-            {/* Image container with react-zoom-pan-pinch */}
-            <div className="w-full h-full flex items-center justify-center">
-              <TransformWrapper
-                initialScale={1}
-                minScale={0.25}
-                maxScale={4}
-                doubleClick={{
-                  disabled: true,
-                }}
-                wheel={{
-                  step: 0.2,
-                  wheelDisabled: false,
-                  touchPadDisabled: false,
-                }}
-                pinch={{
-                  step: 10,
-                }}
-                centerOnInit={true}
-                limitToBounds={true}
-                smooth={true}
-                alignmentAnimation={{
-                  sizeX: 0,
-                  sizeY: 0,
-                  velocityAlignmentTime: 0.3,
-                }}
-                onTransformed={(transform) => {
-                  setCurrentZoom(transform.state.scale);
-                }}
-                ref={transformRef}
-              >
-                <TransformComponent
-                  wrapperClass="w-full h-full"
-                  contentClass="w-full h-full flex items-center justify-center"
-                >
-                  <Image
-                    ref={imageRef}
-                    src={modalImages[currentImageIndex]?.src || ''}
-                    alt={modalImages[currentImageIndex]?.alt || ''}
-                    width={1200}
-                    height={800}
-                    className="max-w-full max-h-full object-contain"
-                    onError={() => console.error('Image failed to load')}
-                  />
-                </TransformComponent>
-              </TransformWrapper>
-
-              {/* Zoom Controls */}
-              <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-20 flex gap-2">
-                <button
-                  onClick={() => transformRef.current?.zoomIn()}
-                  className="p-3 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-2xl sm:text-base"
-                  style={{ touchAction: 'manipulation' }}
-                  title="Zoom In"
-                >
-                  <span className="text-lg font-bold">+</span>
-                </button>
-                <button
-                  onClick={() => transformRef.current?.zoomOut()}
-                  className="p-3 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-2xl sm:text-base"
-                  style={{ touchAction: 'manipulation' }}
-                  title="Zoom Out"
-                >
-                  <span className="text-lg font-bold">−</span>
-                </button>
-                <button
-                  onClick={() => transformRef.current?.resetTransform()}
-                  className="p-3 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors duration-200 text-2xl sm:text-base"
-                  style={{ touchAction: 'manipulation' }}
-                  title="Reset Zoom"
-                >
-                  <span className="text-sm font-bold">100%</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Image counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm mb-12 sm:mb-0">
-              {currentImageIndex + 1} / {modalImages.length}
-              <span className="ml-2 text-yellow-300">
-                {Math.round(currentZoom * 100)}%
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <ParticleSystem />
+      <ParticleSystem isPhotoSwipeOpen={isPhotoSwipeOpen} />
     </div>
   );
 }
