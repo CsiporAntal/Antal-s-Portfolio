@@ -1,12 +1,21 @@
-import { metaData } from "./lib/config";
+import { MetadataRoute } from 'next';
+import { metaData } from './lib/config';
 
-export default function robots() {
+export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
-        userAgent: "*",
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/api/', '/admin/', '/private/'],
+      },
+      {
+        userAgent: 'Googlebot',
+        allow: '/',
+        disallow: ['/api/'],
       },
     ],
-    sitemap: `${metaData.baseUrl}/sitemap.xml`,
+    sitemap: `${metaData.baseUrl}sitemap.xml`,
+    host: metaData.baseUrl,
   };
 }

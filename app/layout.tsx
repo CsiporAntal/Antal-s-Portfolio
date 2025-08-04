@@ -6,7 +6,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footer from "./components/footer";
 import { ThemeProvider } from "./components/theme-switch";
-import { metaData } from "./lib/config";
+import { metaData, socialLinks } from "./lib/config";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,6 +17,10 @@ export const metadata: Metadata = {
     template: `%s | ${metaData.title}`,
   },
   description: metaData.description,
+  keywords: metaData.keywords,
+  authors: [{ name: metaData.name }],
+  creator: metaData.name,
+  publisher: metaData.name,
   openGraph: {
     images: metaData.ogImage,
     title: metaData.title,
@@ -40,9 +44,16 @@ export const metadata: Metadata = {
   twitter: {
     title: metaData.name,
     card: "summary_large_image",
+    description: metaData.description,
   },
   icons: {
     icon: "/favicon.ico",
+  },
+  alternates: {
+    canonical: metaData.baseUrl,
+  },
+  verification: {
+    google: "1bFabmv0mIT8iqY_r65DgCkjNKkKYwNXRmLiUI4c7P8",
   },
 };
 
@@ -51,6 +62,37 @@ export default function RootLayout({
                                    }: {
   children: React.ReactNode;
 }) {
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Csipor Antal",
+    "jobTitle": "PLC Programmer & Web Developer",
+    "description": "Personal portfolio of Csipor Antal — PLC programmer and web developer based in Romania.",
+    "url": metaData.baseUrl,
+    "image": `${metaData.baseUrl}${metaData.ogImage}`,
+    "sameAs": [
+      socialLinks.github
+    ],
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Mureș",
+      "addressCountry": "Romania"
+    },
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Aages S.A."
+    },
+    "knowsAbout": [
+      "PLC Programming",
+      "Industrial Automation", 
+      "Web Development",
+      "React",
+      "Next.js",
+      "Control Systems"
+    ]
+  };
+
   return (
       <html
           lang="en"
@@ -75,6 +117,12 @@ export default function RootLayout({
             type="application/feed+json"
             href="/feed.json"
             title="JSON Feed"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
         />
       </head>
       <body className="antialiased min-h-screen transition-colors duration-300">
