@@ -1028,7 +1028,19 @@ export default function Photos() {
   // }, [ensureNavbarAccessibility]);
 
   const openPhotoSwipe = async (image: PhotoImage, category: string) => {
-    console.log('Opening PhotoSwipe for:', image.alt);
+    // Prevent multiple simultaneous initializations
+    if (photoSwipeRef.current) {
+      try {
+        photoSwipeRef.current.destroy();
+      } catch (error) {
+        // Silent error handling
+      }
+      photoSwipeRef.current = null;
+      
+      // Small delay to ensure cleanup is complete
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
     let imagesToShow: PhotoImage[];
     
     if (category === 'favorites') {
@@ -1054,62 +1066,62 @@ export default function Photos() {
       };
     }));
     
-    // Initialize PhotoSwipe
-    if (photoSwipeRef.current) {
-      photoSwipeRef.current.destroy();
-    }
-    
-    photoSwipeRef.current = new PhotoSwipe({
-      dataSource: items,
-      index: startIndex,
-      showHideAnimationType: 'fade',
-      showAnimationDuration: 200,
-      hideAnimationDuration: 200,
-      easing: 'ease-out',
-      allowPanToNext: true,
-      zoom: true,
-      maxZoomLevel: 4,
-      paddingFn: (viewportSize) => {
-        return {
-          top: 40,
-          bottom: 40,
-          left: 80,
-          right: 80
-        };
-      },
-      closeOnVerticalDrag: true,
-      showHideOpacity: true,
-      bgOpacity: 0.95,
-      spacing: 0.1
-    });
-    
-    // Track PhotoSwipe open/close events
-    photoSwipeRef.current.on('uiRegister', function() {
-      setIsPhotoSwipeOpen(true);
-      
-      // Add custom close button
-      requestAnimationFrame(() => {
-        const pswpElement = document.querySelector('.pswp');
-        if (pswpElement && !pswpElement.querySelector('.pswp-close-btn')) {
-          const closeBtn = document.createElement('button');
-          closeBtn.className = 'pswp-close-btn';
-          closeBtn.innerHTML = '×';
-          closeBtn.addEventListener('click', () => {
-            photoSwipeRef.current?.close();
-          });
-          pswpElement.appendChild(closeBtn);
-        }
+    try {
+      photoSwipeRef.current = new PhotoSwipe({
+        dataSource: items,
+        index: startIndex,
+        showHideAnimationType: 'fade',
+        showAnimationDuration: 200,
+        hideAnimationDuration: 200,
+        easing: 'ease-out',
+        allowPanToNext: true,
+        zoom: true,
+        maxZoomLevel: 4,
+        paddingFn: (viewportSize) => {
+          return {
+            top: 40,
+            bottom: 40,
+            left: 80,
+            right: 80
+          };
+        },
+        closeOnVerticalDrag: true,
+        showHideOpacity: true,
+        bgOpacity: 0.95,
+        spacing: 0.1
       });
-    });
-    
-    photoSwipeRef.current.on('close', function() {
-      setIsPhotoSwipeOpen(false);
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-    });
-    
-    photoSwipeRef.current.init();
-    console.log('PhotoSwipe initialized successfully');
+      
+      // Track PhotoSwipe open/close events
+      photoSwipeRef.current.on('uiRegister', function() {
+        setIsPhotoSwipeOpen(true);
+        
+        // Add custom close button
+        requestAnimationFrame(() => {
+          const pswpElement = document.querySelector('.pswp');
+          if (pswpElement && !pswpElement.querySelector('.pswp-close-btn')) {
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'pswp-close-btn';
+            closeBtn.innerHTML = '×';
+            closeBtn.addEventListener('click', () => {
+              if (photoSwipeRef.current) {
+                photoSwipeRef.current.close();
+              }
+            });
+            pswpElement.appendChild(closeBtn);
+          }
+        });
+      });
+      
+      photoSwipeRef.current.on('close', function() {
+        setIsPhotoSwipeOpen(false);
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+      });
+      
+      photoSwipeRef.current.init();
+    } catch (error) {
+      photoSwipeRef.current = null;
+    }
   };
 
   // DISABLED: Mouse position tracking
@@ -1176,10 +1188,13 @@ export default function Photos() {
   useEffect(() => {
     return () => {
       if (photoSwipeRef.current) {
-        photoSwipeRef.current.destroy();
+        try {
+          photoSwipeRef.current.destroy();
+        } catch (error) {
+          // Silent error handling
+        }
+        photoSwipeRef.current = null;
       }
-      
-      // Clean up if needed
     };
   }, []);
 
@@ -1225,7 +1240,7 @@ export default function Photos() {
         <ScrollTriggeredSection animationType="slideUp" className="mb-16 px-4">
           <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-purple-200/50 dark:border-white/10 hover:border-purple-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 hover:scale-[1.02]"
                onMouseEnter={(e) => {
-                 if ((window as any).createHoverParticles) {
+                 if (!isPhotoSwipeOpen && (window as any).createHoverParticles) {
                    (window as any).createHoverParticles(e.currentTarget);
                  }
                }}
@@ -1242,7 +1257,7 @@ export default function Photos() {
                   data-photoswipe-index={favorites.indexOf(image)}
                   onClick={() => openPhotoSwipe(image, 'favorites')}
                   onMouseEnter={(e) => {
-                    if ((window as any).createHoverParticles) {
+                    if (!isPhotoSwipeOpen && (window as any).createHoverParticles) {
                       (window as any).createHoverParticles(e.currentTarget);
                     }
                   }}
@@ -1272,7 +1287,7 @@ export default function Photos() {
             >
               <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-purple-200/50 dark:border-white/10 hover:border-purple-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 hover:scale-[1.02]"
                    onMouseEnter={(e) => {
-                     if ((window as any).createHoverParticles) {
+                     if (!isPhotoSwipeOpen && (window as any).createHoverParticles) {
                        (window as any).createHoverParticles(e.currentTarget);
                      }
                    }}
@@ -1289,7 +1304,7 @@ export default function Photos() {
                       data-photoswipe-index={phoneCategory.images.indexOf(image)}
                       onClick={() => openPhotoSwipe(image, phoneCategory.id)}
                       onMouseEnter={(e) => {
-                        if ((window as any).createHoverParticles) {
+                        if (!isPhotoSwipeOpen && (window as any).createHoverParticles) {
                           (window as any).createHoverParticles(e.currentTarget);
                         }
                       }}

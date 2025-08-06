@@ -1020,22 +1020,7 @@ export default function EnhancedPortfolio() {
 
             <div className="mt-8">
               <h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent cursor-pointer transition-all duration-300 hover:scale-105 select-none"
-                onMouseEnter={(e) => {
-                  if ((window as any).createTextParticles) {
-                    (window as any).createTextParticles(e.currentTarget);
-                  }
-                }}
-                onClick={(e) => {
-                  if ((window as any).createTextParticles) {
-                    // Create more particles on click
-                    for (let i = 0; i < 3; i++) {
-                      setTimeout(() => {
-                        (window as any).createTextParticles(e.currentTarget);
-                      }, i * 100);
-                    }
-                  }
-                }}
+                className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition-all duration-300 hover:scale-105 select-none"
               >
                 Hi, I'm {metaData.title.replace("'s Portfolio", "")}
                 <span 
