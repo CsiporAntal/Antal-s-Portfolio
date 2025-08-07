@@ -65,7 +65,7 @@ export function Navbar() {
               height={isScrolled ? 40 : 48} 
               className="bg-transparent object-contain" 
             />
-            <span className="bg-transparent">{metaData.title}</span>
+            <span className="bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-500 ease-out">{metaData.title}</span>
           </Link>
         </div>
 

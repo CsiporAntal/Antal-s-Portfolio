@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronDown, MapPin, Briefcase, GraduationCap, Code, Mail, Github, ExternalLink, Cpu, Globe, Cog, Zap, Monitor, Settings } from 'lucide-react';
 import { metaData, socialLinks } from './lib/config';
 import Image from 'next/image';
+import { useTheme } from 'next-themes';
 
 // Particle system
 interface Particle {
@@ -26,12 +27,21 @@ interface Particle {
   attractionStrength?: number; // Added for burst particles
 }
 
-const colors = [
+// Theme-aware color palettes
+const darkColors = [
   '#8b5cf6', '#a855f7', '#9333ea', '#7c3aed', '#6d28d9',
-  '#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'
+  '#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a',
+  '#1e293b', '#334155', '#475569', '#64748b', '#475569'
+];
+
+const lightColors = [
+  '#1e1e1e', '#2d2d2d', '#3d3d3d', '#4a4a4a', '#5a5a5a',
+  '#1a1a1a', '#2a2a2a', '#3a3a3a', '#4d4d4d', '#5d5d5d',
+  '#0f0f0f', '#1f1f1f', '#2f2f2f', '#3f3f3f', '#4f4f4f'
 ];
 
 const ParticleSystem = () => {
+  const { theme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -65,7 +75,7 @@ const ParticleSystem = () => {
       size: Math.random() * (type === 'click' ? 6 : type === 'text' ? 5 : type === 'island' ? 3 : type === 'clickconnect' ? 4 : type === 'texthover' ? 3.5 : type === 'air' ? 2.5 : 4) + (type === 'island' ? 1 : type === 'clickconnect' ? 1.5 : type === 'texthover' ? 1.2 : type === 'air' ? 1 : 2),
       life: finalLife,
       maxLife: finalLife,
-      color: type === 'air' ? '#f59e0b' : colors[Math.floor(Math.random() * colors.length)], // Amber for air particles
+      color: type === 'air' ? '#f59e0b' : (theme === 'light' ? lightColors : darkColors)[Math.floor(Math.random() * (theme === 'light' ? lightColors.length : darkColors.length))], // Theme-aware colors
       type
     };
 
@@ -306,6 +316,11 @@ const ParticleSystem = () => {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
+    // Ensure proper rendering properties
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     const scrollX = window.scrollX;
@@ -324,12 +339,14 @@ const ParticleSystem = () => {
         return; // Skip particles outside viewport
       }
       
-      // Create gradient
+      // Create gradient with theme-aware opacity for better visibility
       const gradient = ctx.createRadialGradient(
         screenX, screenY, 0,
         screenX, screenY, size
       );
-      gradient.addColorStop(0, `${particle.color}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`);
+      // Much higher opacity for light theme to ensure visibility
+      const enhancedAlpha = theme === 'light' ? Math.min(alpha * 3.0, 1) : Math.min(alpha * 1.5, 1);
+      gradient.addColorStop(0, `${particle.color}${Math.floor(enhancedAlpha * 255).toString(16).padStart(2, '0')}`);
       gradient.addColorStop(1, `${particle.color}00`);
       
       ctx.fillStyle = gradient;
@@ -337,9 +354,10 @@ const ParticleSystem = () => {
       ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
       ctx.fill();
       
-      // Add special effects for different particle types
+      // Add special effects for different particle types with theme-aware opacity
       if (particle.type === 'click' && alpha > 0.5) {
-        ctx.strokeStyle = `${particle.color}${Math.floor(alpha * 128).toString(16).padStart(2, '0')}`;
+        const enhancedAlpha = theme === 'light' ? Math.min(alpha * 3.0, 1) : Math.min(alpha * 1.5, 1);
+        ctx.strokeStyle = `${particle.color}${Math.floor(enhancedAlpha * 128).toString(16).padStart(2, '0')}`;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(screenX, screenY, size * 1.5, 0, Math.PI * 2);
@@ -347,7 +365,8 @@ const ParticleSystem = () => {
       }
       
       if (particle.type === 'text' && alpha > 0.3) {
-        ctx.strokeStyle = `${particle.color}${Math.floor(alpha * 100).toString(16).padStart(2, '0')}`;
+        const enhancedAlpha = theme === 'light' ? Math.min(alpha * 3.0, 1) : Math.min(alpha * 1.5, 1);
+        ctx.strokeStyle = `${particle.color}${Math.floor(enhancedAlpha * 100).toString(16).padStart(2, '0')}`;
         ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.arc(screenX, screenY, size * 2, 0, Math.PI * 2);
@@ -356,8 +375,9 @@ const ParticleSystem = () => {
 
       // Special effects for island particles
       if (particle.type === 'island') {
-        // Add a subtle pulsing glow
-        const pulseAlpha = (Math.sin(Date.now() * 0.005 + particle.id) + 1) * 0.5 * alpha * 0.3;
+        // Add a subtle pulsing glow with theme-aware opacity
+        const enhancedAlpha = theme === 'light' ? Math.min(alpha * 3.0, 1) : Math.min(alpha * 1.5, 1);
+        const pulseAlpha = (Math.sin(Date.now() * 0.005 + particle.id) + 1) * 0.5 * enhancedAlpha * 0.4;
         ctx.strokeStyle = `${particle.color}${Math.floor(pulseAlpha * 255).toString(16).padStart(2, '0')}`;
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -369,7 +389,7 @@ const ParticleSystem = () => {
         const mouseScreenY = mouseRef.current.y;
         const mouseDistance = Math.sqrt((screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2);
         if (mouseDistance < 120) {
-          const connectionAlpha = (120 - mouseDistance) / 120 * 0.5;
+          const connectionAlpha = (120 - mouseDistance) / 120 * (theme === 'light' ? 0.9 : 0.7);
           ctx.strokeStyle = `rgba(139, 92, 246, ${connectionAlpha})`;
           ctx.lineWidth = 2;
           ctx.beginPath();
@@ -381,8 +401,9 @@ const ParticleSystem = () => {
 
       // Special effects for clickconnect particles
       if (particle.type === 'clickconnect') {
-        // Add a bright glow
-        const glowAlpha = alpha * 0.4;
+        // Add a bright glow with theme-aware opacity
+        const enhancedAlpha = theme === 'light' ? Math.min(alpha * 3.0, 1) : Math.min(alpha * 1.5, 1);
+        const glowAlpha = enhancedAlpha * 0.5;
         ctx.strokeStyle = `${particle.color}${Math.floor(glowAlpha * 255).toString(16).padStart(2, '0')}`;
         ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -394,7 +415,7 @@ const ParticleSystem = () => {
         const mouseScreenY = mouseRef.current.y;
         const mouseDistance = Math.sqrt((screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2);
         if (mouseDistance < 150) {
-          const connectionAlpha = (150 - mouseDistance) / 150 * 0.7;
+          const connectionAlpha = (150 - mouseDistance) / 150 * (theme === 'light' ? 0.95 : 0.8);
           ctx.strokeStyle = `rgba(59, 130, 246, ${connectionAlpha})`;
           ctx.lineWidth = 2.5;
           ctx.beginPath();
@@ -406,8 +427,9 @@ const ParticleSystem = () => {
 
       // Special effects for texthover particles
       if (particle.type === 'texthover') {
-        // Add a golden glow
-        const glowAlpha = alpha * 0.35;
+        // Add a golden glow with theme-aware opacity
+        const enhancedAlpha = theme === 'light' ? Math.min(alpha * 3.0, 1) : Math.min(alpha * 1.5, 1);
+        const glowAlpha = enhancedAlpha * 0.45;
         ctx.strokeStyle = `rgba(245, 158, 11, ${glowAlpha})`; // Amber color
         ctx.lineWidth = 1.2;
         ctx.beginPath();
@@ -419,7 +441,7 @@ const ParticleSystem = () => {
         const mouseScreenY = mouseRef.current.y;
         const mouseDistance = Math.sqrt((screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2);
         if (mouseDistance < 200) {
-          const connectionAlpha = (200 - mouseDistance) / 200 * 0.6;
+          const connectionAlpha = (200 - mouseDistance) / 200 * (theme === 'light' ? 0.95 : 0.8);
           ctx.strokeStyle = `rgba(245, 158, 11, ${connectionAlpha})`; // Amber connection lines
           ctx.lineWidth = 2;
           ctx.beginPath();
@@ -431,8 +453,9 @@ const ParticleSystem = () => {
 
       // Special effects for air particles
       if (particle.type === 'air') {
-        // Add a subtle pulsing glow
-        const pulseAlpha = (Math.sin(Date.now() * 0.005 + particle.id) + 1) * 0.5 * alpha * 0.3;
+        // Add a subtle pulsing glow with theme-aware opacity
+        const enhancedAlpha = theme === 'light' ? Math.min(alpha * 3.0, 1) : Math.min(alpha * 1.5, 1);
+        const pulseAlpha = (Math.sin(Date.now() * 0.005 + particle.id) + 1) * 0.5 * enhancedAlpha * 0.4;
         ctx.strokeStyle = `rgba(245, 158, 11, ${pulseAlpha})`; // Amber color
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -444,7 +467,7 @@ const ParticleSystem = () => {
         const mouseScreenY = mouseRef.current.y;
         const mouseDistance = Math.sqrt((screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2);
         if (mouseDistance < 300) { // Increased from 250 to match attraction radius
-          const connectionAlpha = (300 - mouseDistance) / 300 * 0.7; // Increased connection strength
+          const connectionAlpha = (300 - mouseDistance) / 300 * (theme === 'light' ? 0.98 : 0.9); // Much higher connection strength for light theme
           ctx.strokeStyle = `rgba(245, 158, 11, ${connectionAlpha})`; // Amber connection lines
           ctx.lineWidth = 2.5; // Thicker connection lines
           ctx.beginPath();
@@ -477,7 +500,7 @@ const ParticleSystem = () => {
         const distance = Math.sqrt((p1ScreenX - p2ScreenX) ** 2 + (p1ScreenY - p2ScreenY) ** 2);
         
         if (distance < connectionDistance) {
-          let alpha = (1 - distance / connectionDistance) * 0.3;
+          let alpha = (1 - distance / connectionDistance) * (theme === 'light' ? 0.8 : 0.5); // Much higher opacity for light theme
           
           // Stronger connections for island particles
           if (p1.type === 'island' && p2.type === 'island') {
@@ -721,7 +744,7 @@ const ParticleSystem = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-[-10]"
+      className="fixed inset-0 pointer-events-none z-10"
       style={{ background: 'transparent' }}
     />
   );
@@ -951,6 +974,17 @@ export default function EnhancedPortfolio() {
             }
           }
           
+          @keyframes heartbeat {
+            0%, 100% { 
+              transform: scale(1);
+              opacity: 0.3;
+            }
+            50% { 
+              transform: scale(1.15);
+              opacity: 0.6;
+            }
+          }
+          
           .purple-circle {
             animation: purple-wiggle 10s ease-in-out infinite;
           }
@@ -965,6 +999,10 @@ export default function EnhancedPortfolio() {
           
           .island-background {
             animation: island-pulse 6s ease-in-out infinite;
+          }
+          
+          .heartbeat-shadow {
+            animation: heartbeat 2s ease-in-out infinite;
           }
         `}</style>
 
@@ -990,16 +1028,16 @@ export default function EnhancedPortfolio() {
           </div>
         </div>
 
-        <div className="relative z-10 w-full px-4 sm:px-8 py-4 sm:py-6">
+        <div className="relative z-15 w-full px-4 sm:px-8 py-4 sm:py-6">
           {/* Hero Section */}
           <AnimatedSection className="text-center mb-16 mt-2">
             <div className="relative mb-12 py-8 px-8">
               {/* Secondary Glow Layer - Background only, no hover interaction */}
-              <div className="absolute inset-0 w-56 h-56 mx-auto bg-gradient-to-r from-purple-300/20 to-purple-500/20 dark:from-purple-400/30 dark:to-purple-600/30 rounded-full blur-xl transition-all duration-1000 top-0 left-0 right-0 bottom-0 pointer-events-none"></div>
+              <div className="absolute inset-0 w-56 h-56 mx-auto bg-gradient-to-r from-purple-600/40 to-purple-800/40 dark:from-purple-400/30 dark:to-purple-600/30 rounded-full blur-xl transition-all duration-1000 top-0 left-0 right-0 bottom-0 pointer-events-none heartbeat-shadow"></div>
               
               {/* Profile Picture Container - Only this triggers hover effects */}
               <div 
-                className="group relative w-40 h-40 rounded-full mx-auto border-4 border-purple-300/40 dark:border-purple-400/50 bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center overflow-hidden transition-all duration-500 hover:scale-105 z-10 cursor-pointer select-none"
+                className="group relative w-40 h-40 rounded-full mx-auto border-4 border-purple-300/40 dark:border-purple-400/50 bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center overflow-hidden transition-all duration-500 hover:scale-105 z-20 cursor-pointer select-none"
                 data-profile-picture
                 onClick={() => {
                   if ((window as any).createProfileClickEffect) {
@@ -1127,11 +1165,11 @@ export default function EnhancedPortfolio() {
                 <GraduationCap className="text-green-500 dark:text-green-400 sm:w-7 sm:h-7" size={24} />
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">Education</h2>
               </div>
-              <div className="relative">
-                <div className="absolute left-3 sm:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-green-400 to-transparent"></div>
-                <div className="pl-8 sm:pl-16 relative space-y-6">
-                  {/* University Studies */}
-                  <div>
+              <div className="space-y-6">
+                <div className="relative">
+                  <div className="absolute left-3 sm:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-green-400 to-transparent"></div>
+
+                  <div className="pl-8 sm:pl-16 relative mb-6 sm:mb-8">
                     <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse"></div>
                     <div className="bg-green-100/40 dark:bg-green-500/20 p-3 sm:p-6 rounded-lg hover:bg-green-200/50 dark:hover:bg-green-500/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center gap-3 mb-3">
@@ -1146,9 +1184,8 @@ export default function EnhancedPortfolio() {
                       </p>
                     </div>
                   </div>
-                  
-                  {/* Electromaros Studies */}
-                  <div>
+
+                  <div className="pl-8 sm:pl-16 relative">
                     <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full animate-pulse"></div>
                     <div className="bg-blue-100/40 dark:bg-blue-500/20 p-3 sm:p-6 rounded-lg hover:bg-blue-200/50 dark:hover:bg-blue-500/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center gap-3 mb-3">
