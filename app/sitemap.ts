@@ -1,5 +1,4 @@
 import { MetadataRoute } from "next";
-import { getBlogPosts } from "./lib/posts";
 import { metaData } from "./lib/config";
 
 const BaseUrl = metaData.baseUrl.endsWith("/")
@@ -31,13 +30,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Blog posts with proper metadata
-  const blogPosts = getBlogPosts().map((post) => ({
-    url: `${BaseUrl}blog/${post.slug}`,
-    lastModified: post.metadata.publishedAt,
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
-
-  return [...mainPages, ...blogPosts];
+  return mainPages;
 }
