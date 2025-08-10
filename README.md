@@ -44,7 +44,7 @@ The portfolio features a sophisticated particle system with multiple interaction
 ### Interactive Elements
 - **Mouse Follower**: Styled cursor with multi-layered design
 - **Connection Lines**: Dynamic lines between particles and mouse
-- **Scroll Animations**: Particles appear based on scroll direction and speed
+- **Scroll Animations**: Smooth scroll-triggered animations (particles removed for cleaner experience)
 - **Profile Click**: Creates a spectacular 45-particle burst with varied lifespans
 
 ---

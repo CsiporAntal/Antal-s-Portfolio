@@ -17,7 +17,7 @@ interface Particle {
   life: number;
   maxLife: number;
   color: string;
-  type: 'mouse' | 'click' | 'ambient' | 'text' | 'scroll' | 'island' | 'clickconnect' | 'texthover' | 'air';
+  type: 'mouse' | 'click' | 'ambient' | 'text' | 'island' | 'clickconnect' | 'texthover' | 'air';
   // Island particle specific properties
   homeX?: number;
   homeY?: number;
@@ -25,6 +25,9 @@ interface Particle {
   orbitRadius?: number;
   orbitSpeed?: number;
   attractionStrength?: number; // Added for burst particles
+  // Offscreen optimization properties
+  staggerIndex?: number; // For staggered updates of offscreen particles
+  lastUpdateFrame?: number; // Track when particle was last updated
 }
 
 // Theme-aware color palettes
@@ -52,14 +55,20 @@ const ParticleSystem = () => {
   const lastIslandParticleTime = useRef(0);
   const isMouseNearProfile = useRef(false);
   const lastHoverParticleTime = useRef(0);
+  
+  // Maximum particle limits
+  const maxClickParticles = 50; // Maximum active click particles
+  const maxProfileClickParticles = 100; // Maximum active profile click particles
+  const maxClickConnectParticles = 30; // Maximum active clickconnect particles
+  const maxAirParticles = 20; // Maximum active air particles
 
-  const createParticle = useCallback((x: number, y: number, type: 'mouse' | 'click' | 'ambient' | 'text' | 'scroll' | 'island' | 'clickconnect' | 'texthover' | 'air' = 'ambient'): Particle => {
-    const baseVelocity = type === 'click' ? 8 : type === 'mouse' ? 3 : type === 'text' ? 2 : type === 'scroll' ? 4 : type === 'island' ? 0.5 : type === 'clickconnect' ? 1.5 : type === 'texthover' ? 1 : type === 'air' ? 0.8 : 1;
+  const createParticle = useCallback((x: number, y: number, type: 'mouse' | 'click' | 'ambient' | 'text' | 'island' | 'clickconnect' | 'texthover' | 'air' = 'ambient'): Particle => {
+          const baseVelocity = type === 'click' ? 8 : type === 'mouse' ? 3 : type === 'text' ? 2 : type === 'island' ? 0.5 : type === 'clickconnect' ? 1.5 : type === 'texthover' ? 1 : type === 'air' ? 0.8 : 1;
     const angle = Math.random() * Math.PI * 2;
     const velocity = Math.random() * baseVelocity + (type === 'island' ? 0.2 : type === 'clickconnect' ? 0.5 : type === 'texthover' ? 0.3 : type === 'air' ? 0.2 : 1);
     
     // Base lifespans
-    const baseLife = type === 'click' ? 180 : type === 'mouse' ? 90 : type === 'text' ? 150 : type === 'scroll' ? 120 : type === 'island' ? 450 : type === 'clickconnect' ? 270 : type === 'texthover' ? 200 : type === 'air' ? 160 : 240;
+    const baseLife = type === 'click' ? 180 : type === 'mouse' ? 90 : type === 'text' ? 150 : type === 'island' ? 450 : type === 'clickconnect' ? 270 : type === 'texthover' ? 200 : type === 'air' ? 160 : 240;
     
     // Add random variation to lifetime (±20%)
     const lifeVariation = baseLife * 0.2;
@@ -131,172 +140,226 @@ const ParticleSystem = () => {
     return createParticle(spawnX, spawnY, 'island');
   }, [createParticle]);
 
+  // Helper functions to check particle counts
+  const getParticleCount = useCallback((type: string) => {
+    return particlesRef.current.filter(p => p.type === type).length;
+  }, []);
+
+  const canCreateParticles = useCallback((type: string, count: number) => {
+    const currentCount = getParticleCount(type);
+    const maxCount = type === 'click' ? maxClickParticles : 
+                    type === 'island' ? maxProfileClickParticles :
+                    type === 'clickconnect' ? maxClickConnectParticles :
+                    type === 'air' ? maxAirParticles : 100; // Default max for other types
+    return currentCount + count <= maxCount;
+  }, [getParticleCount, maxClickParticles, maxProfileClickParticles, maxClickConnectParticles, maxAirParticles]);
+
   const updateParticles = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     updateProfilePicturePosition();
 
-    // Check if mouse is near profile picture
+    // Cache per-frame values
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
     const { x: profileX, y: profileY, radius: profileRadius } = profilePictureRef.current;
     const { x: mouseScreenX, y: mouseScreenY } = mouseRef.current;
-    // Convert mouse to world coordinates for distance calculations
-    const mouseWorldX = mouseScreenX + window.scrollX;
-    const mouseWorldY = mouseScreenY + window.scrollY;
-    const distanceToProfile = Math.sqrt((mouseWorldX - profileX) ** 2 + (mouseWorldY - profileY) ** 2);
+    const mouseWorldX = mouseScreenX + scrollX;
+    const mouseWorldY = mouseScreenY + scrollY;
+    
+    // Compute document dimensions once per frame
+    const documentWidth = Math.max(document.documentElement.scrollWidth, window.innerWidth);
+    const documentHeight = Math.max(document.documentElement.scrollHeight, window.innerHeight);
+    
+    // Viewport bounds for offscreen optimization (100px margin)
+    const viewportLeft = scrollX - 100;
+    const viewportRight = scrollX + window.innerWidth + 100;
+    const viewportTop = scrollY - 100;
+    const viewportBottom = scrollY + window.innerHeight + 100;
+    
+    // Check if mouse is near profile picture using squared distance
+    const distanceToProfileSquared = (mouseWorldX - profileX) ** 2 + (mouseWorldY - profileY) ** 2;
+    const profileRadiusSquared = (profileRadius + 50) ** 2; // 50px buffer around profile
     const wasNearProfile = isMouseNearProfile.current;
-    isMouseNearProfile.current = distanceToProfile < profileRadius + 50; // 50px buffer around profile
+    isMouseNearProfile.current = distanceToProfileSquared < profileRadiusSquared;
 
     // Generate hover particles when mouse is near profile
     if (isMouseNearProfile.current) {
       const now = Date.now();
       if (now - lastHoverParticleTime.current > 200) { // Every 200ms when hovering
-        // Create 2-3 extra particles when hovering
+        // Create 2-3 extra particles when hovering (with limit)
         const extraParticles = Math.floor(Math.random() * 2) + 2;
-        for (let i = 0; i < extraParticles; i++) {
-          particlesRef.current.push(createIslandParticle());
+        if (canCreateParticles('island', extraParticles)) {
+          for (let i = 0; i < extraParticles; i++) {
+            particlesRef.current.push(createIslandParticle());
+          }
         }
         lastHoverParticleTime.current = now;
       }
     }
 
+    // Track current frame for staggered updates
+    const currentFrame = performance.now();
+
     particlesRef.current = particlesRef.current.filter(particle => {
-      // Update position based on particle type
-      if (particle.type === 'island') {
-        // Island particle behavior
-        const mouseDistance = Math.sqrt((particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2);
-        const attractionRadius = 120;
+      // Check if particle is offscreen
+      const isOffscreen = particle.x < viewportLeft || particle.x > viewportRight || 
+                         particle.y < viewportTop || particle.y > viewportBottom;
+      
+      // Initialize stagger properties if not set
+      if (particle.staggerIndex === undefined) {
+        particle.staggerIndex = Math.floor(Math.random() * 3); // 0, 1, or 2
+      }
+      if (particle.lastUpdateFrame === undefined) {
+        particle.lastUpdateFrame = currentFrame;
+      }
+      
+            // Skip physics update for offscreen particles based on stagger
+      const shouldUpdatePhysics = !isOffscreen || 
+        (currentFrame - particle.lastUpdateFrame) > 16.67 * 3; // Update every 3rd frame (50ms) for offscreen particles
+      
+      if (shouldUpdatePhysics) {
+        particle.lastUpdateFrame = currentFrame;
         
-        if (mouseDistance < attractionRadius) {
-          // Gentle attraction to mouse when close
-          const baseAttractionStrength = particle.attractionStrength || 0.03; // Use custom strength for burst particles
-          const attractionStrength = (attractionRadius - mouseDistance) / attractionRadius * baseAttractionStrength;
-          const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
-          particle.vx += Math.cos(angleToMouse) * attractionStrength;
-          particle.vy += Math.sin(angleToMouse) * attractionStrength;
+        // Update position based on particle type
+        if (particle.type === 'island') {
+          // Island particle behavior - use squared distance for threshold comparison
+          const mouseDistanceSquared = (particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2;
+          const attractionRadiusSquared = 120 ** 2;
+          
+          if (mouseDistanceSquared < attractionRadiusSquared) {
+            // Gentle attraction to mouse when close
+            const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
+            const baseAttractionStrength = particle.attractionStrength || 0.03; // Use custom strength for burst particles
+            const attractionStrength = (120 - mouseDistance) / 120 * baseAttractionStrength;
+            const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
+            particle.vx += Math.cos(angleToMouse) * attractionStrength;
+            particle.vy += Math.sin(angleToMouse) * attractionStrength;
+          } else {
+            // Orbital movement around home position
+            if (particle.homeX && particle.homeY && particle.orbitAngle !== undefined && particle.orbitRadius && particle.orbitSpeed) {
+              particle.orbitAngle += particle.orbitSpeed;
+              const targetX = particle.homeX + Math.cos(particle.orbitAngle) * particle.orbitRadius;
+              const targetY = particle.homeY + Math.sin(particle.orbitAngle) * particle.orbitRadius;
+              
+              // Gentle movement towards orbit position
+              particle.vx += (targetX - particle.x) * 0.02;
+              particle.vy += (targetY - particle.y) * 0.02;
+            }
+          }
+          
+          // Apply gentle drift back towards profile area using squared distance
+          const distanceFromProfileSquared = (particle.x - profileX) ** 2 + (particle.y - profileY) ** 2;
+          const profileRadiusSquared = profilePictureRef.current.radius ** 2;
+          if (distanceFromProfileSquared > profileRadiusSquared) {
+            const returnStrength = 0.01;
+            const angleToProfile = Math.atan2(profileY - particle.y, profileX - particle.x);
+            particle.vx += Math.cos(angleToProfile) * returnStrength;
+            particle.vy += Math.sin(angleToProfile) * returnStrength;
+          }
+          
+          // Apply velocity with damping
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.vx *= 0.95; // More damping for island particles
+          particle.vy *= 0.95;
+        } else if (particle.type === 'clickconnect') {
+          // Click-connect particles - attracted to mouse using squared distance
+          const mouseDistanceSquared = (particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2;
+          const attractionRadiusSquared = 150 ** 2;
+          
+          if (mouseDistanceSquared < attractionRadiusSquared) {
+            // Gentle attraction to mouse
+            const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
+            const attractionStrength = (150 - mouseDistance) / 150 * 0.08;
+            const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
+            particle.vx += Math.cos(angleToMouse) * attractionStrength;
+            particle.vy += Math.sin(angleToMouse) * attractionStrength;
+          }
+          
+          // Apply velocity with light damping
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.vx *= 0.98;
+          particle.vy *= 0.98;
+          
+          // Light gravity
+          particle.vy += 0.05;
+        } else if (particle.type === 'texthover') {
+          // Text hover particles - attracted to mouse using squared distance
+          const mouseDistanceSquared = (particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2;
+          const attractionRadiusSquared = 200 ** 2;
+          
+          if (mouseDistanceSquared < attractionRadiusSquared) {
+            // Gentle attraction to mouse
+            const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
+            const attractionStrength = (200 - mouseDistance) / 200 * 0.06;
+            const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
+            particle.vx += Math.cos(angleToMouse) * attractionStrength;
+            particle.vy += Math.sin(angleToMouse) * attractionStrength;
+          }
+          
+          // Apply velocity with light damping
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.vx *= 0.97;
+          particle.vy *= 0.97;
+          
+          // Very light gravity
+          particle.vy += 0.03;
+        } else if (particle.type === 'air') {
+          // Air particles - drift towards mouse with stronger attraction using squared distance
+          const mouseDistanceSquared = (particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2;
+          const attractionRadiusSquared = 300 ** 2; // Increased from 250
+          
+          if (mouseDistanceSquared < attractionRadiusSquared) {
+            const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
+            const attractionStrength = (300 - mouseDistance) / 300 * 0.08; // Increased from 0.04
+            const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
+            particle.vx += Math.cos(angleToMouse) * attractionStrength;
+            particle.vy += Math.sin(angleToMouse) * attractionStrength;
+          }
+          
+          // Apply velocity with light damping
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.vx *= 0.98;
+          particle.vy *= 0.98;
+          
+          // Much lighter gravity - fall slower
+          particle.vy += 0.005; // Reduced from 0.02 for slower falling
         } else {
-          // Orbital movement around home position
-          if (particle.homeX && particle.homeY && particle.orbitAngle !== undefined && particle.orbitRadius && particle.orbitSpeed) {
-            particle.orbitAngle += particle.orbitSpeed;
-            const targetX = particle.homeX + Math.cos(particle.orbitAngle) * particle.orbitRadius;
-            const targetY = particle.homeY + Math.sin(particle.orbitAngle) * particle.orbitRadius;
-            
-            // Gentle movement towards orbit position
-            particle.vx += (targetX - particle.x) * 0.02;
-            particle.vy += (targetY - particle.y) * 0.02;
+          // Regular particle behavior
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          
+          // Apply gravity and friction
+          particle.vy += 0.1;
+          particle.vx *= 0.99;
+          particle.vy *= 0.99;
+          
+          // Special effects for text particles
+          if (particle.type === 'text') {
+            particle.vy -= 0.05; // Float upward slightly
           }
         }
         
-        // Apply gentle drift back towards profile area
-        const distanceFromProfile = Math.sqrt((particle.x - profileX) ** 2 + (particle.y - profileY) ** 2);
-        if (distanceFromProfile > profilePictureRef.current.radius) {
-          const returnStrength = 0.01;
-          const angleToProfile = Math.atan2(profileY - particle.y, profileX - particle.x);
-          particle.vx += Math.cos(angleToProfile) * returnStrength;
-          particle.vy += Math.sin(angleToProfile) * returnStrength;
-        }
-        
-        // Apply velocity with damping
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        particle.vx *= 0.95; // More damping for island particles
-        particle.vy *= 0.95;
-      } else if (particle.type === 'clickconnect') {
-        // Click-connect particles - attracted to mouse
-        const mouseDistance = Math.sqrt((particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2);
-        const attractionRadius = 150;
-        
-        if (mouseDistance < attractionRadius) {
-          // Gentle attraction to mouse
-          const attractionStrength = (attractionRadius - mouseDistance) / attractionRadius * 0.08;
-          const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
-          particle.vx += Math.cos(angleToMouse) * attractionStrength;
-          particle.vy += Math.sin(angleToMouse) * attractionStrength;
-        }
-        
-        // Apply velocity with light damping
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        particle.vx *= 0.98;
-        particle.vy *= 0.98;
-        
-        // Light gravity
-        particle.vy += 0.05;
-      } else if (particle.type === 'texthover') {
-        // Text hover particles - attracted to mouse
-        const mouseDistance = Math.sqrt((particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2);
-        const attractionRadius = 200;
-        
-        if (mouseDistance < attractionRadius) {
-          // Gentle attraction to mouse
-          const attractionStrength = (attractionRadius - mouseDistance) / attractionRadius * 0.06;
-          const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
-          particle.vx += Math.cos(angleToMouse) * attractionStrength;
-          particle.vy += Math.sin(angleToMouse) * attractionStrength;
-        }
-        
-        // Apply velocity with light damping
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        particle.vx *= 0.97;
-        particle.vy *= 0.97;
-        
-        // Very light gravity
-        particle.vy += 0.03;
-      } else if (particle.type === 'air') {
-        // Air particles - drift towards mouse with stronger attraction
-        const mouseDistance = Math.sqrt((particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2);
-        const attractionRadius = 300; // Increased from 250
-        
-        if (mouseDistance < attractionRadius) {
-          const attractionStrength = (attractionRadius - mouseDistance) / attractionRadius * 0.08; // Increased from 0.04
-          const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
-          particle.vx += Math.cos(angleToMouse) * attractionStrength;
-          particle.vy += Math.sin(angleToMouse) * attractionStrength;
-        }
-        
-        // Apply velocity with light damping
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        particle.vx *= 0.98;
-        particle.vy *= 0.98;
-        
-        // Much lighter gravity - fall slower
-        particle.vy += 0.005; // Reduced from 0.02 for slower falling
-      } else {
-        // Regular particle behavior
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        
-        // Apply gravity and friction
-        particle.vy += 0.1;
-        particle.vx *= 0.99;
-        particle.vy *= 0.99;
-        
-        // Special effects for text particles
-        if (particle.type === 'text') {
-          particle.vy -= 0.05; // Float upward slightly
+        // Bounce off edges (except for island particles which should stay near profile)
+        if (particle.type !== 'island') {
+          if (particle.x <= 0 || particle.x >= documentWidth) {
+            particle.vx *= -0.8;
+            particle.x = Math.max(0, Math.min(documentWidth, particle.x));
+          }
+          if (particle.y <= 0 || particle.y >= documentHeight) {
+            particle.vy *= -0.8;
+            particle.y = Math.max(0, Math.min(documentHeight, particle.y));
+          }
         }
       }
       
-      // Decrease life
+      // Decrease life (always, regardless of physics update)
       particle.life--;
-      
-      // Bounce off edges (except for island particles which should stay near profile)
-      if (particle.type !== 'island') {
-        // Use document dimensions instead of canvas dimensions for world coordinate bouncing
-        const documentWidth = Math.max(document.documentElement.scrollWidth, window.innerWidth);
-        const documentHeight = Math.max(document.documentElement.scrollHeight, window.innerHeight);
-        
-        if (particle.x <= 0 || particle.x >= documentWidth) {
-          particle.vx *= -0.8;
-          particle.x = Math.max(0, Math.min(documentWidth, particle.x));
-        }
-        if (particle.y <= 0 || particle.y >= documentHeight) {
-          particle.vy *= -0.8;
-          particle.y = Math.max(0, Math.min(documentHeight, particle.y));
-        }
-      }
       
       return particle.life > 0;
     });
@@ -316,15 +379,19 @@ const ParticleSystem = () => {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
+    // Cache per-frame values
+    const now = performance.now();
+    const w = canvas.width;
+    const h = canvas.height;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
     // Ensure proper rendering properties
     ctx.globalCompositeOperation = 'source-over';
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+    ctx.clearRect(0, 0, w, h);
     
     particlesRef.current.forEach(particle => {
       const alpha = particle.life / particle.maxLife;
@@ -335,7 +402,7 @@ const ParticleSystem = () => {
       const screenY = particle.y - scrollY;
       
       // Only draw particles that are visible on screen
-      if (screenX < -50 || screenX > canvas.width + 50 || screenY < -50 || screenY > canvas.height + 50) {
+      if (screenX < -50 || screenX > w + 50 || screenY < -50 || screenY > h + 50) {
         return; // Skip particles outside viewport
       }
       
@@ -387,8 +454,10 @@ const ParticleSystem = () => {
         // Draw connection to mouse if close
         const mouseScreenX = mouseRef.current.x;
         const mouseScreenY = mouseRef.current.y;
-        const mouseDistance = Math.sqrt((screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2);
-        if (mouseDistance < 120) {
+        const mouseDistanceSquared = (screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2;
+        const connectionRadiusSquared = 120 ** 2;
+        if (mouseDistanceSquared < connectionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const connectionAlpha = (120 - mouseDistance) / 120 * (theme === 'light' ? 0.9 : 0.7);
           ctx.strokeStyle = `rgba(139, 92, 246, ${connectionAlpha})`;
           ctx.lineWidth = 2;
@@ -413,8 +482,10 @@ const ParticleSystem = () => {
         // Always draw connection to mouse
         const mouseScreenX = mouseRef.current.x;
         const mouseScreenY = mouseRef.current.y;
-        const mouseDistance = Math.sqrt((screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2);
-        if (mouseDistance < 150) {
+        const mouseDistanceSquared = (screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2;
+        const connectionRadiusSquared = 150 ** 2;
+        if (mouseDistanceSquared < connectionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const connectionAlpha = (150 - mouseDistance) / 150 * (theme === 'light' ? 0.95 : 0.8);
           ctx.strokeStyle = `rgba(59, 130, 246, ${connectionAlpha})`;
           ctx.lineWidth = 2.5;
@@ -439,8 +510,10 @@ const ParticleSystem = () => {
         // Draw connection to mouse when close
         const mouseScreenX = mouseRef.current.x;
         const mouseScreenY = mouseRef.current.y;
-        const mouseDistance = Math.sqrt((screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2);
-        if (mouseDistance < 200) {
+        const mouseDistanceSquared = (screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2;
+        const connectionRadiusSquared = 200 ** 2;
+        if (mouseDistanceSquared < connectionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const connectionAlpha = (200 - mouseDistance) / 200 * (theme === 'light' ? 0.95 : 0.8);
           ctx.strokeStyle = `rgba(245, 158, 11, ${connectionAlpha})`; // Amber connection lines
           ctx.lineWidth = 2;
@@ -465,8 +538,10 @@ const ParticleSystem = () => {
         // Draw connection to mouse if close
         const mouseScreenX = mouseRef.current.x;
         const mouseScreenY = mouseRef.current.y;
-        const mouseDistance = Math.sqrt((screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2);
-        if (mouseDistance < 300) { // Increased from 250 to match attraction radius
+        const mouseDistanceSquared = (screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2;
+        const connectionRadiusSquared = 300 ** 2; // Increased from 250 to match attraction radius
+        if (mouseDistanceSquared < connectionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const connectionAlpha = (300 - mouseDistance) / 300 * (theme === 'light' ? 0.98 : 0.9); // Much higher connection strength for light theme
           ctx.strokeStyle = `rgba(245, 158, 11, ${connectionAlpha})`; // Amber connection lines
           ctx.lineWidth = 2.5; // Thicker connection lines
@@ -492,14 +567,16 @@ const ParticleSystem = () => {
         const p2ScreenY = p2.y - scrollY;
         
         // Skip if either particle is off-screen
-        if (p1ScreenX < -50 || p1ScreenX > canvas.width + 50 || p1ScreenY < -50 || p1ScreenY > canvas.height + 50 ||
-            p2ScreenX < -50 || p2ScreenX > canvas.width + 50 || p2ScreenY < -50 || p2ScreenY > canvas.height + 50) {
+        if (p1ScreenX < -50 || p1ScreenX > w + 50 || p1ScreenY < -50 || p1ScreenY > h + 50 ||
+            p2ScreenX < -50 || p2ScreenX > w + 50 || p2ScreenY < -50 || p2ScreenY > h + 50) {
           continue;
         }
         
-        const distance = Math.sqrt((p1ScreenX - p2ScreenX) ** 2 + (p1ScreenY - p2ScreenY) ** 2);
+        const distanceSquared = (p1ScreenX - p2ScreenX) ** 2 + (p1ScreenY - p2ScreenY) ** 2;
+        const connectionDistanceSquared = connectionDistance ** 2;
         
-        if (distance < connectionDistance) {
+        if (distanceSquared < connectionDistanceSquared) {
+          const distance = Math.sqrt(distanceSquared); // Only calculate sqrt when needed
           let alpha = (1 - distance / connectionDistance) * (theme === 'light' ? 0.8 : 0.5); // Much higher opacity for light theme
           
           // Stronger connections for island particles
@@ -537,12 +614,15 @@ const ParticleSystem = () => {
       // Store mouse position in screen coordinates for drawing connections
       mouseRef.current = { x: e.clientX, y: e.clientY };
       
-      // Create particles on mouse movement (throttled)
+      // Create particles on mouse movement (throttled and limited)
       const now = Date.now();
       if (now - lastParticleTime.current > 50) {
-        // Create particles in world coordinates
-        particlesRef.current.push(createParticle(e.clientX + window.scrollX, e.clientY + window.scrollY, 'mouse'));
-        lastParticleTime.current = now;
+        // Check if we can create mouse particles (limit to 20 active mouse particles)
+        if (getParticleCount('mouse') < 20) {
+          // Create particles in world coordinates
+          particlesRef.current.push(createParticle(e.clientX + window.scrollX, e.clientY + window.scrollY, 'mouse'));
+          lastParticleTime.current = now;
+        }
       }
     };
 
@@ -568,51 +648,42 @@ const ParticleSystem = () => {
       }
       
       if (!isProfileClick) {
-        // Create clickconnect particles for general clicks in world coordinates
-        for (let i = 0; i < 8; i++) {
-          const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.3;
-          const distance = Math.random() * 60 + 20; // 20-80px from click point
-          const spawnX = e.clientX + window.scrollX + Math.cos(angle) * distance;
-          const spawnY = e.clientY + window.scrollY + Math.sin(angle) * distance;
-          particlesRef.current.push(createParticle(spawnX, spawnY, 'clickconnect'));
+        // Create clickconnect particles for general clicks in world coordinates (with limit)
+        if (canCreateParticles('clickconnect', 4)) {
+          for (let i = 0; i < 4; i++) { // Reduced from 8 to 4 (50% less)
+            const angle = (i / 4) * Math.PI * 2 + Math.random() * 0.3;
+            const distance = Math.random() * 60 + 20; // 20-80px from click point
+            const spawnX = e.clientX + window.scrollX + Math.cos(angle) * distance;
+            const spawnY = e.clientY + window.scrollY + Math.sin(angle) * distance;
+            particlesRef.current.push(createParticle(spawnX, spawnY, 'clickconnect'));
+          }
         }
         
-        // Add a few amber air particles
-        for (let i = 0; i < 4; i++) { // Just a few amber particles
-          const angle = Math.random() * Math.PI * 2;
-          const distance = Math.random() * 40 + 10; // 10-50px from click point
-          const spawnX = e.clientX + window.scrollX + Math.cos(angle) * distance;
-          const spawnY = e.clientY + window.scrollY + Math.sin(angle) * distance;
-          particlesRef.current.push(createParticle(spawnX, spawnY, 'air'));
+        // Add a few amber air particles (with limit)
+        if (canCreateParticles('air', 2)) {
+          for (let i = 0; i < 2; i++) { // Reduced from 4 to 2 (50% less)
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 40 + 10; // 10-50px from click point
+            const spawnX = e.clientX + window.scrollX + Math.cos(angle) * distance;
+            const spawnY = e.clientY + window.scrollY + Math.sin(angle) * distance;
+            particlesRef.current.push(createParticle(spawnX, spawnY, 'air'));
+          }
         }
       }
       
-      // Original click explosion effect (for non-profile clicks) in world coordinates
+      // Original click explosion effect (for non-profile clicks) in world coordinates (with limit)
       if (!isProfileClick) {
-        for (let i = 0; i < 15; i++) {
-          particlesRef.current.push(createParticle(e.clientX + window.scrollX, e.clientY + window.scrollY, 'click'));
+        if (canCreateParticles('click', 8)) {
+          for (let i = 0; i < 8; i++) { // Reduced from 15 to 8 (50% less)
+            particlesRef.current.push(createParticle(e.clientX + window.scrollX, e.clientY + window.scrollY, 'click'));
+          }
         }
       }
     };
 
     const handleScroll = () => {
+      // Scroll particles removed - keeping only the scroll tracking
       const currentScrollY = window.scrollY;
-      const scrollDelta = Math.abs(currentScrollY - lastScrollY.current);
-      
-      if (scrollDelta > 10) {
-        // Create particles based on scroll intensity
-        const particleCount = Math.min(Math.floor(scrollDelta / 20), 8);
-        
-        for (let i = 0; i < particleCount; i++) {
-          const x = Math.random() * window.innerWidth;
-          const y = currentScrollY > lastScrollY.current 
-            ? Math.random() * 100 + window.innerHeight - 100 // Bottom for scroll down
-            : Math.random() * 100; // Top for scroll up
-            
-          particlesRef.current.push(createParticle(x, y, 'scroll'));
-        }
-      }
-      
       lastScrollY.current = currentScrollY;
     };
 
@@ -622,7 +693,8 @@ const ParticleSystem = () => {
 
     // Add some ambient particles
     const addAmbientParticles = () => {
-      if (particlesRef.current.length < 30) {
+      // Limit ambient particles to prevent too many
+      if (getParticleCount('ambient') < 15 && particlesRef.current.length < 100) {
         particlesRef.current.push(createParticle(
           Math.random() * window.innerWidth,
           Math.random() * window.innerHeight,
@@ -655,14 +727,18 @@ const ParticleSystem = () => {
       // Ensure we always have minimum particles - create immediately if needed
       if (islandParticles.length < minIslandParticles) {
         const needed = minIslandParticles - islandParticles.length;
-        for (let i = 0; i < needed; i++) {
+        const canCreate = canCreateParticles('island', needed);
+        const actualNeeded = canCreate ? needed : Math.max(0, maxProfileClickParticles - getParticleCount('island'));
+        for (let i = 0; i < actualNeeded; i++) {
           particlesRef.current.push(createIslandParticle());
         }
       }
       
       // Randomly add particles up to maximum (increased probability)
       if (islandParticles.length < maxIslandParticles && Math.random() < 0.7) {
-        particlesRef.current.push(createIslandParticle());
+        if (canCreateParticles('island', 1)) {
+          particlesRef.current.push(createIslandParticle());
+        }
       }
       
       // More conservative particle killing to prevent gaps
@@ -682,7 +758,8 @@ const ParticleSystem = () => {
     // Initialize island particles (more initial particles)
     setTimeout(() => {
       updateProfilePicturePosition();
-      for (let i = 0; i < 18; i++) { // Even more initial particles
+      const initialCount = Math.min(18, maxProfileClickParticles - getParticleCount('island'));
+      for (let i = 0; i < initialCount; i++) { // Even more initial particles
         particlesRef.current.push(createIslandParticle());
       }
     }, 500); // Wait for profile picture to be rendered
@@ -700,13 +777,49 @@ const ParticleSystem = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [animate, createParticle, createIslandParticle, updateProfilePicturePosition]);
+  }, [animate, createParticle, createIslandParticle, updateProfilePicturePosition, getParticleCount, canCreateParticles]);
 
   const createProfileClickEffect = useCallback(() => {
     const { x: profileX, y: profileY } = profilePictureRef.current;
     const burstRadius = 500; // Even bigger radius (was 300)
     const particleCount = 45; // More particles for bigger effect
     
+    // Check if we can create the full burst effect
+    if (!canCreateParticles('island', particleCount)) {
+      // If we can't create the full burst, create a reduced version
+      const availableSlots = maxProfileClickParticles - getParticleCount('island');
+      const reducedCount = Math.max(10, Math.floor(availableSlots * 0.8)); // At least 10 particles, or 80% of available slots
+      
+      if (reducedCount <= 0) {
+        return; // Don't create any particles if no slots available
+      }
+      
+      // Create reduced burst effect
+      for (let i = 0; i < reducedCount; i++) {
+        const angle = (i / reducedCount) * Math.PI * 2 + Math.random() * 0.5;
+        const distance = Math.random() * burstRadius + 120;
+        const spawnX = profileX + Math.cos(angle) * distance;
+        const spawnY = profileY + Math.sin(angle) * distance;
+        
+        const particle = createParticle(spawnX, spawnY, 'island');
+        const burstVelocity = 5 + Math.random() * 4;
+        particle.vx = Math.cos(angle) * burstVelocity;
+        particle.vy = Math.sin(angle) * burstVelocity;
+        
+        const baseLife = 600;
+        const shouldLiveLonger = Math.random() < 0.3;
+        const finalLife = shouldLiveLonger ? baseLife * 2 : baseLife;
+        
+        particle.life = finalLife;
+        particle.maxLife = finalLife;
+        particle.attractionStrength = 0.08;
+        
+        particlesRef.current.push(particle);
+      }
+      return;
+    }
+    
+    // Create full burst effect
     for (let i = 0; i < particleCount; i++) {
       const angle = (i / particleCount) * Math.PI * 2 + Math.random() * 0.5; // Spread evenly with some randomness
       const distance = Math.random() * burstRadius + 120; // 120-620px from center (was 80-380)
@@ -733,7 +846,7 @@ const ParticleSystem = () => {
       
       particlesRef.current.push(particle);
     }
-  }, [createParticle]);
+  }, [createParticle, canCreateParticles, getParticleCount, maxProfileClickParticles]);
 
   // Expose functions for external use
   useEffect(() => {

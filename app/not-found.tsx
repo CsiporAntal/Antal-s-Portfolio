@@ -107,20 +107,26 @@ const ParticleSystem = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Cache per-frame values
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
     const mouseWorldX = mouseRef.current.x + scrollX;
     const mouseWorldY = mouseRef.current.y + scrollY;
+    
+    // Compute document dimensions once per frame
+    const documentWidth = Math.max(document.documentElement.scrollWidth, window.innerWidth);
+    const documentHeight = Math.max(document.documentElement.scrollHeight, window.innerHeight);
 
     particlesRef.current = particlesRef.current.filter(particle => {
       // Update position based on particle type (matching main page exactly)
       if (particle.type === 'clickconnect') {
-        // Click-connect particles - attracted to mouse
-        const mouseDistance = Math.sqrt((particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2);
-        const attractionRadius = 150;
+        // Click-connect particles - attracted to mouse using squared distance
+        const mouseDistanceSquared = (particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2;
+        const attractionRadiusSquared = 150 ** 2;
         
-        if (mouseDistance < attractionRadius) {
-          const attractionStrength = (attractionRadius - mouseDistance) / attractionRadius * 0.08;
+        if (mouseDistanceSquared < attractionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
+          const attractionStrength = (150 - mouseDistance) / 150 * 0.08;
           const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
           particle.vx += Math.cos(angleToMouse) * attractionStrength;
           particle.vy += Math.sin(angleToMouse) * attractionStrength;
@@ -132,12 +138,13 @@ const ParticleSystem = () => {
         particle.vy *= 0.98;
         particle.vy += 0.05;
       } else if (particle.type === 'air') {
-        // Air particles - drift towards mouse with stronger attraction
-        const mouseDistance = Math.sqrt((particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2);
-        const attractionRadius = 300;
+        // Air particles - drift towards mouse with stronger attraction using squared distance
+        const mouseDistanceSquared = (particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2;
+        const attractionRadiusSquared = 300 ** 2;
         
-        if (mouseDistance < attractionRadius) {
-          const attractionStrength = (attractionRadius - mouseDistance) / attractionRadius * 0.08;
+        if (mouseDistanceSquared < attractionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
+          const attractionStrength = (300 - mouseDistance) / 300 * 0.08;
           const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
           particle.vx += Math.cos(angleToMouse) * attractionStrength;
           particle.vy += Math.sin(angleToMouse) * attractionStrength;
@@ -149,9 +156,12 @@ const ParticleSystem = () => {
         particle.vy *= 0.98;
         particle.vy += 0.005; // Much lighter gravity
       } else if (particle.type === 'hover') {
-        // Hover particles attraction to mouse
-        const mouseDistance = Math.sqrt((particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2);
-        if (mouseDistance < 150) {
+        // Hover particles attraction to mouse using squared distance
+        const mouseDistanceSquared = (particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2;
+        const attractionRadiusSquared = 150 ** 2;
+        
+        if (mouseDistanceSquared < attractionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const attractionStrength = (150 - mouseDistance) / 150 * 0.05;
           const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
           particle.vx += Math.cos(angleToMouse) * attractionStrength;
@@ -164,9 +174,12 @@ const ParticleSystem = () => {
         particle.vy *= 0.99;
         particle.vy += 0.05;
       } else if (particle.type === 'ambient') {
-        // Ambient particles gentle attraction to mouse
-        const mouseDistance = Math.sqrt((particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2);
-        if (mouseDistance < 120) {
+        // Ambient particles gentle attraction to mouse using squared distance
+        const mouseDistanceSquared = (particle.x - mouseWorldX) ** 2 + (particle.y - mouseWorldY) ** 2;
+        const attractionRadiusSquared = 120 ** 2;
+        
+        if (mouseDistanceSquared < attractionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const attractionStrength = (120 - mouseDistance) / 120 * 0.03;
           const angleToMouse = Math.atan2(mouseWorldY - particle.y, mouseWorldX - particle.x);
           particle.vx += Math.cos(angleToMouse) * attractionStrength;
@@ -191,9 +204,6 @@ const ParticleSystem = () => {
       particle.life--;
       
       // Bounce off edges
-      const documentWidth = Math.max(document.documentElement.scrollWidth, window.innerWidth);
-      const documentHeight = Math.max(document.documentElement.scrollHeight, window.innerHeight);
-      
       if (particle.x <= 0 || particle.x >= documentWidth) {
         particle.vx *= -0.8;
         particle.x = Math.max(0, Math.min(documentWidth, particle.x));
@@ -212,10 +222,14 @@ const ParticleSystem = () => {
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+    // Cache per-frame values
+    const now = performance.now();
+    const w = canvas.width;
+    const h = canvas.height;
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
+
+    ctx.clearRect(0, 0, w, h);
     
     particlesRef.current.forEach(particle => {
       const alpha = particle.life / particle.maxLife;
@@ -224,7 +238,7 @@ const ParticleSystem = () => {
       const screenX = particle.x - scrollX;
       const screenY = particle.y - scrollY;
       
-      if (screenX < -50 || screenX > canvas.width + 50 || screenY < -50 || screenY > canvas.height + 50) {
+      if (screenX < -50 || screenX > w + 50 || screenY < -50 || screenY > h + 50) {
         return;
       }
       
@@ -258,8 +272,10 @@ const ParticleSystem = () => {
         ctx.arc(screenX, screenY, size * 2.2, 0, Math.PI * 2);
         ctx.stroke();
 
-        const mouseDistance = Math.sqrt((screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2);
-        if (mouseDistance < 150) {
+        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const connectionRadiusSquared = 150 ** 2;
+        if (mouseDistanceSquared < connectionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const connectionAlpha = (150 - mouseDistance) / 150 * 0.7;
           ctx.strokeStyle = `rgba(59, 130, 246, ${connectionAlpha})`;
           ctx.lineWidth = 2.5;
@@ -279,8 +295,10 @@ const ParticleSystem = () => {
         ctx.arc(screenX, screenY, size * 1.8, 0, Math.PI * 2);
         ctx.stroke();
 
-        const mouseDistance = Math.sqrt((screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2);
-        if (mouseDistance < 300) {
+        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const connectionRadiusSquared = 300 ** 2;
+        if (mouseDistanceSquared < connectionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const connectionAlpha = (300 - mouseDistance) / 300 * 0.7;
           ctx.strokeStyle = `rgba(245, 158, 11, ${connectionAlpha})`;
           ctx.lineWidth = 2.5;
@@ -293,8 +311,10 @@ const ParticleSystem = () => {
 
       // Connection lines for hover particles
       if (particle.type === 'hover') {
-        const mouseDistance = Math.sqrt((screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2);
-        if (mouseDistance < 150) {
+        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const connectionRadiusSquared = 150 ** 2;
+        if (mouseDistanceSquared < connectionRadiusSquared) {
+          const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
           const connectionAlpha = (150 - mouseDistance) / 150 * 0.5;
           ctx.strokeStyle = `rgba(139, 92, 246, ${connectionAlpha})`;
           ctx.lineWidth = 1.5;

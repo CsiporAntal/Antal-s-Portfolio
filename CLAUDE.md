@@ -66,7 +66,7 @@ Key functions:
 - **CSS animations**: Custom keyframes in `<style jsx>` blocks for profile picture effects
 - **Intersection Observer**: Scroll-triggered animations via `ScrollTriggeredSection` component
 - **Mouse tracking**: Smooth cursor follower with requestAnimationFrame
-- **Scroll effects**: Particle generation based on scroll velocity and direction
+- **Scroll effects**: Smooth scroll-triggered animations (scroll particles removed)
 
 ### Component Architecture
 
