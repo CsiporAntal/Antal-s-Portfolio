@@ -1,25 +1,18 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const { pathname, host } = request.nextUrl;
-  
-  // Redirect www to non-www for better SEO
-  if (host.startsWith('www.')) {
-    const newHost = host.replace('www.', '');
-    const url = request.nextUrl.clone();
-    url.host = newHost;
-    return NextResponse.redirect(url, 301);
+  const { pathname } = request.nextUrl
+  const url = request.nextUrl.clone()
+
+  // Redirect trailing slashes to non-trailing slashes (except for root)
+  // This prevents duplicate content issues with URLs like /page/ vs /page
+  if (pathname !== '/' && pathname.endsWith('/')) {
+    url.pathname = pathname.slice(0, -1)
+    return NextResponse.redirect(url, 301)
   }
-  
-  // Ensure trailing slash consistency (optional)
-  if (pathname !== '/' && !pathname.endsWith('/')) {
-    const url = request.nextUrl.clone();
-    url.pathname = pathname + '/';
-    return NextResponse.redirect(url, 301);
-  }
-  
-  return NextResponse.next();
+
+  return NextResponse.next()
 }
 
 export const config = {
@@ -33,4 +26,4 @@ export const config = {
      */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
-}; 
+} 

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     images: metaData.ogImage,
     title: metaData.title,
     description: metaData.description,
-    url: metaData.baseUrl,
+    url: `${metaData.baseUrl}/`,
     siteName: metaData.name,
     locale: "en_US",
     type: "website",
@@ -50,10 +50,16 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
   },
   alternates: {
-    canonical: metaData.baseUrl,
+    canonical: `${metaData.baseUrl}/`,
+    languages: {
+      'en-US': `${metaData.baseUrl}/`,
+    },
   },
   verification: {
     google: "1bFabmv0mIT8iqY_r65DgCkjNKkKYwNXRmLiUI4c7P8",
+  },
+  other: {
+    'google-site-verification': '1bFabmv0mIT8iqY_r65DgCkjNKkKYwNXRmLiUI4c7P8',
   },
 };
 

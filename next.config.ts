@@ -13,6 +13,22 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Redirect specific pages with trailing slashes to non-trailing slashes
+      // This prevents duplicate content issues
+      {
+        source: '/projects/',
+        destination: '/projects',
+        permanent: true,
+      },
+      {
+        source: '/photos/',
+        destination: '/photos',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

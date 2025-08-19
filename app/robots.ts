@@ -7,15 +7,27 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/admin/', '/private/'],
+        disallow: [
+          '/api/', 
+          '/admin/', 
+          '/private/',
+          '/feed/', // Prevent duplicate feed URLs
+          '/*.xml', // Prevent direct access to XML files
+          '/*.json', // Prevent direct access to JSON files
+        ],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: ['/api/'],
+        disallow: [
+          '/api/',
+          '/feed/',
+          '/*.xml',
+          '/*.json',
+        ],
       },
     ],
-    sitemap: `${metaData.baseUrl}sitemap.xml`,
+    sitemap: `${metaData.baseUrl}/sitemap.xml`,
     host: metaData.baseUrl,
   };
 }
