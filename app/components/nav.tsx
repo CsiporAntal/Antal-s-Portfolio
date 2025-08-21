@@ -47,25 +47,23 @@ export function Navbar() {
   }, [isScrolled]);
 
   return (
-      <nav className={`relative z-50 transition-all duration-500 ease-out ${isScrolled ? 'py-1 sm:py-2' : 'py-2 sm:py-3'}`}>
+      <nav className="relative z-50 py-2 sm:py-3">
 
       <div className="flex items-center justify-between">
         {/* Logo/Title */}
         <div className="flex items-center">
           <Link 
             href="/" 
-            className={`flex items-center gap-2 font-semibold transition-all duration-500 ease-out select-none bg-transparent ${
-              isScrolled ? 'text-lg sm:text-xl' : 'text-xl sm:text-2xl'
-            }`}
+            className="flex items-center gap-2 font-semibold select-none bg-transparent text-xl sm:text-2xl"
           >
             <Image 
               src="/logo.png" 
               alt="Logo" 
-              width={isScrolled ? 40 : 48} 
-              height={isScrolled ? 40 : 48} 
+              width={48}
+              height={48} 
               className="bg-transparent object-contain" 
             />
-            <span className="bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all duration-500 ease-out">{metaData.title}</span>
+            <span className="bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text hover:text-transparent">{metaData.title}</span>
           </Link>
         </div>
 
@@ -75,7 +73,7 @@ export function Navbar() {
             <Link
               key={path}
               href={path}
-              className="flex items-center gap-2 transition-all duration-300 hover:text-blue-600 dark:hover:text-blue-400 text-slate-600 dark:text-gray-300 hover:scale-105 font-medium"
+              className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 text-slate-600 dark:text-gray-300 font-medium"
             >
               <Icon size={18} />
               {name}
@@ -117,7 +115,7 @@ export function Navbar() {
                 key={path}
                 href={path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 text-slate-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+                className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-700/50 text-slate-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
               >
                 <Icon size={18} />
                 {name}

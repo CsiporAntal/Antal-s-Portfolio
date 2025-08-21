@@ -13,12 +13,13 @@ import { metaData, socialLinks } from "app/lib/config";
 
 const YEAR = new Date().getFullYear();
 
-function SocialLink({ href, icon: Icon }) {
+function SocialLink({ href, icon: Icon, label }) {
   return (
-    <a 
-      href={href} 
-      target="_blank" 
+    <a
+      href={href}
+      target="_blank"
       rel="noopener noreferrer"
+      aria-label={label}
       className="text-slate-500 dark:text-gray-300 hover:text-slate-800 dark:hover:text-white transition-colors duration-300 hover:scale-110 transform"
     >
       <Icon size={20} />
@@ -29,9 +30,9 @@ function SocialLink({ href, icon: Icon }) {
 function SocialLinks() {
   return (
     <div className="flex text-lg gap-4 transition-opacity duration-300 hover:opacity-90">
-      <SocialLink href={socialLinks.github} icon={FaGithub} />
-      <SocialLink href={socialLinks.linkedin} icon={FaLinkedinIn} />
-      <SocialLink href={`mailto:${socialLinks.email}`} icon={TbMailFilled} />
+      <SocialLink href={socialLinks.github} icon={FaGithub} label="Visit my GitHub profile" />
+      <SocialLink href={socialLinks.linkedin} icon={FaLinkedinIn} label="Connect with me on LinkedIn" />
+      <SocialLink href={`mailto:${socialLinks.email}`} icon={TbMailFilled} label="Send me an email" />
     </div>
   );
 }
@@ -45,6 +46,7 @@ export default function Footer() {
           <small className="text-slate-500 dark:text-gray-300">
             <time>© {YEAR}</time>{" "}
             <a
+              href={metaData.baseUrl}
               className="no-underline hover:text-slate-800 dark:hover:text-white transition-colors duration-300"
               target="_blank"
               rel="noopener noreferrer"
