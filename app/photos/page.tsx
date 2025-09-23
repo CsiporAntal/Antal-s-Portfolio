@@ -934,10 +934,10 @@ const getImageDimensions = (src: string): Promise<{ width: number; height: numbe
 // Sample image data - you can replace these with your actual photos
 const photoData: PhotoImage[] = [
   // Favorites
-  { id: 'fav1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823242/IMG_20250531_004947_ljmmhk.jpg', alt: 'Xiaomi 15 Ultra - Sunset', category: 'favorites' },
-  { id: 'fav2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823238/IMG_20250529_001749_p4ovrn.jpg', alt: 'Xiaomi 15 Ultra - Architecture', category: 'favorites' },
-  { id: 'fav3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823237/IMG_20250531_151750_vhjhnv.jpg', alt: 'Xiaomi 15 Ultra - Street Scene', category: 'favorites' },
-  { id: 'fav4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823235/IMG_20250601_183012_dzgcyi.jpg', alt: 'Xiaomi 15 Ultra - City View', category: 'favorites' },
+  { id: 'fav1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823234/photo_3_eolx0r.jpg', alt: 'Xiaomi 15 Ultra - Big Ben', category: 'favorites' },
+  { id: 'fav2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823238/IMG_20250529_001749_p4ovrn.jpg', alt: 'Xiaomi 15 Ultra - Ferrari shop', category: 'favorites' },
+  { id: 'fav3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823237/IMG_20250531_151750_vhjhnv.jpg', alt: 'Xiaomi 15 Ultra - Tower Bridge', category: 'favorites' },
+  { id: 'fav4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823235/IMG_20250601_183012_dzgcyi.jpg', alt: 'Xiaomi 15 Ultra - Limestone Ball', category: 'favorites' },
   
   // Xiaomi 15 Ultra
   { id: 'xiaomi1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823242/IMG_20250531_004947_ljmmhk.jpg', alt: 'Xiaomi 15 Ultra Photo 1', category: 'phones', phone: 'xiaomi-15-ultra' },
@@ -983,12 +983,12 @@ const photoData: PhotoImage[] = [
   { id: 'huawei6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899389/IMG_20230708_161725_k7orna.jpg', alt: 'Huawei P30 Pro Photo 6', category: 'phones', phone: 'huawei-p30-pro' },
   
   // Nothing CMF 2 Pro
-  { id: 'nothing1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823233/IMG_20250529_001734_qqnhka.jpg', alt: 'Nothing CMF 2 Pro Photo 1', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823233/IMG_20250525_174132_gt5nny.jpg', alt: 'Nothing CMF 2 Pro Photo 2', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823232/IMG_20250525_174016_vc8iem.jpg', alt: 'Nothing CMF 2 Pro Photo 3', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823242/IMG_20250531_004947_ljmmhk.jpg', alt: 'Nothing CMF 2 Pro Photo 4', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823238/IMG_20250529_001749_p4ovrn.jpg', alt: 'Nothing CMF 2 Pro Photo 5', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753823237/IMG_20250531_151750_vhjhnv.jpg', alt: 'Nothing CMF 2 Pro Photo 6', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659577/IMG_20250715_182122156_uwbxok.jpg', alt: 'Nothing CMF 2 Pro Photo 1', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659574/IMG_20250822_151829822_nuwgwv.jpg', alt: 'Nothing CMF 2 Pro Photo 2', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659580/IMG_20250822_153506081_cemwf2.jpg', alt: 'Nothing CMF 2 Pro Photo 3', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659575/IMG_20250822_150809900_ozxkr7.jpg', alt: 'Nothing CMF 2 Pro Photo 4', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659573/IMG_20250822_151040054_vmecgu.jpg', alt: 'Nothing CMF 2 Pro Photo 5', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659575/IMG_20250822_150415949_hcij6o.jpg', alt: 'Nothing CMF 2 Pro Photo 6', category: 'phones', phone: 'nothing-cmf-2-pro' },
 ];
 
 const phoneCategories = [
