@@ -2,8 +2,6 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Navbar } from "./components/nav";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footer from "./components/footer";
 import { ThemeProvider } from "./components/theme-switch";
 import { metaData, socialLinks } from "./lib/config";
@@ -130,6 +128,31 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData),
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Suppress browser extension runtime errors
+              window.addEventListener('error', function(e) {
+                if (e.message && e.message.includes('Extension context invalidated')) {
+                  e.preventDefault();
+                  return false;
+                }
+              });
+              
+              // Suppress unhandled promise rejections from extensions
+              window.addEventListener('unhandledrejection', function(e) {
+                if (e.reason && typeof e.reason === 'object' && e.reason.message) {
+                  if (e.reason.message.includes('Extension context invalidated') ||
+                      e.reason.message.includes('message port closed') ||
+                      e.reason.message.includes('runtime.lastError')) {
+                    e.preventDefault();
+                    return false;
+                  }
+                }
+              });
+            `,
+          }}
+        />
       </head>
       <body className="antialiased min-h-screen transition-colors duration-300">
       <ThemeProvider
@@ -161,8 +184,6 @@ export default function RootLayout({
           </footer>
         </div>
 
-        <Analytics />
-        <SpeedInsights />
       </ThemeProvider>
       </body>
       </html>
