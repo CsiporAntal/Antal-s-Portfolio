@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronDown, MapPin, Briefcase, GraduationCap, Code, Mail, Github, ExternalLink, Cpu, Globe, Cog, Zap, Monitor, Settings } from 'lucide-react';
+import { ChevronDown, MapPin, Briefcase, GraduationCap, Code, Mail, Github, ExternalLink, Cpu, Globe, Cog, Zap, Monitor, Settings, Calendar, Download } from 'lucide-react';
 import { metaData, socialLinks } from './lib/config';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
@@ -1141,10 +1141,10 @@ export default function EnhancedPortfolio() {
           </div>
         </div>
 
-        <div className="relative z-15 w-full px-4 sm:px-8 py-4 sm:py-6">
+        <div className="relative z-15 w-full px-2 sm:px-8 py-3 sm:py-6">
           {/* Hero Section */}
           <AnimatedSection className="text-center mb-16 mt-2">
-            <div className="relative mb-12 py-8 px-8">
+            <div className="relative mb-12 py-6 px-4 sm:py-8 sm:px-8">
               {/* Secondary Glow Layer - Background only, no hover interaction */}
               <div className="absolute inset-0 w-56 h-56 mx-auto bg-gradient-to-r from-purple-600/40 to-purple-800/40 dark:from-purple-400/30 dark:to-purple-600/30 rounded-full blur-xl transition-all duration-1000 top-0 left-0 right-0 bottom-0 pointer-events-none heartbeat-shadow"></div>
               
@@ -1208,6 +1208,14 @@ export default function EnhancedPortfolio() {
                 <Mail size={20} />
                 Get in Touch
               </a>
+              <a
+                  href="/Csipor_Antal_CV.pdf"
+                  download
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+              >
+                <Download size={20} />
+                Download Resume
+              </a>
               </div>
             </div>
           </AnimatedSection>
@@ -1220,8 +1228,8 @@ export default function EnhancedPortfolio() {
           )}
 
           {/* About Section */}
-          <ScrollTriggeredSection animationType="slideUp" className="mb-20 px-2 sm:px-4">
-            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-3 sm:p-6 md:p-8 border border-blue-200/50 dark:border-white/10 hover:border-blue-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20"
+          <ScrollTriggeredSection animationType="slideUp" className="mb-10 sm:mb-20 px-1 sm:px-4">
+            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-blue-200/50 dark:border-white/10 hover:border-blue-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20"
                  onMouseEnter={(e) => {
                    if ((window as any).createHoverParticles) {
                      (window as any).createHoverParticles(e.currentTarget);
@@ -1238,7 +1246,7 @@ export default function EnhancedPortfolio() {
                   <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full animate-pulse"></div>
                   <div className="grid md:grid-cols-2 gap-4 sm:gap-8">
                     <div className="space-y-3 sm:space-y-4">
-                      <div className="flex items-start gap-3 p-3 sm:p-4 bg-blue-100/40 dark:bg-blue-500/20 rounded-lg hover:bg-blue-200/50 dark:hover:bg-blue-500/30 transition-colors duration-300">
+                      <div className="flex items-start gap-3 p-2 sm:p-4 bg-blue-100/40 dark:bg-blue-500/20 rounded-lg hover:bg-blue-200/50 dark:hover:bg-blue-500/30 transition-colors duration-300">
                         <MapPin className="text-blue-500 dark:text-blue-400 mt-1 flex-shrink-0 sm:w-5 sm:h-5" size={18} />
                         <div>
                           <p className="text-slate-600 dark:text-gray-300">
@@ -1246,7 +1254,7 @@ export default function EnhancedPortfolio() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3 p-3 sm:p-4 bg-purple-100/40 dark:bg-purple-500/20 rounded-lg hover:bg-purple-200/50 dark:hover:bg-purple-500/30 transition-colors duration-300">
+                      <div className="flex items-start gap-3 p-2 sm:p-4 bg-purple-100/40 dark:bg-purple-500/20 rounded-lg hover:bg-purple-200/50 dark:hover:bg-purple-500/30 transition-colors duration-300">
                         <Briefcase className="text-purple-500 dark:text-purple-400 mt-1 flex-shrink-0 sm:w-5 sm:h-5" size={18} />
                         <div>
                           <p className="text-slate-600 dark:text-gray-300">
@@ -1271,20 +1279,83 @@ export default function EnhancedPortfolio() {
             </div>
           </ScrollTriggeredSection>
 
+          {/* Work Experience Section */}
+          <ScrollTriggeredSection animationType="slideRight" className="mb-10 sm:mb-20 px-1 sm:px-4">
+            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-red-200/50 dark:border-white/10 hover:border-red-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-red-500/10 dark:hover:shadow-red-500/20">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <Briefcase className="text-red-500 dark:text-red-400 sm:w-7 sm:h-7" size={24} />
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">Work Experience</h2>
+              </div>
+              <div className="space-y-6">
+                <div className="relative">
+                  <div className="absolute left-3 sm:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-red-400 via-orange-400 to-amber-400"></div>
+
+                  <div className="pl-8 sm:pl-16 relative mb-6 sm:mb-8">
+                    <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-red-400 rounded-full animate-pulse"></div>
+                    <div className="bg-red-100/40 dark:bg-red-500/20 p-2 sm:p-6 rounded-lg hover:bg-red-200/50 dark:hover:bg-red-500/30 transition-all duration-300 hover:scale-[1.02]">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Cog className="text-red-500 dark:text-red-400" size={20} />
+                        <h3 className="text-xl font-semibold text-red-600 dark:text-red-400">PLC Programmer</h3>
+                      </div>
+                      <p className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Aages S.A.</p>
+                      <p className="text-slate-600 dark:text-gray-300 mb-3">Full-time • 2022 - Now</p>
+                      <p className="text-slate-500 dark:text-gray-400">
+                        Developing and maintaining industrial automation systems, programming PLCs,
+                        and ensuring optimal performance of manufacturing processes.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pl-8 sm:pl-16 relative mb-6 sm:mb-8">
+                    <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-orange-400 rounded-full animate-pulse"></div>
+                    <div className="bg-orange-100/40 dark:bg-orange-500/20 p-2 sm:p-6 rounded-lg hover:bg-orange-200/50 dark:hover:bg-orange-500/30 transition-all duration-300 hover:scale-[1.02]">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Calendar className="text-orange-500 dark:text-orange-400" size={20} />
+                        <h3 className="text-xl font-semibold text-orange-600 dark:text-orange-400">Event Manager</h3>
+                      </div>
+                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">MOMENTS & MORE SRL</p>
+                      <p className="text-slate-600 dark:text-gray-300 mb-3">Part-time • 2025 - Now</p>
+                      <p className="text-slate-500 dark:text-gray-400">
+                        Organizing and managing festivals and events, coordinating logistics,
+                        and ensuring memorable experiences for attendees.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pl-8 sm:pl-16 relative">
+                    <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-amber-400 rounded-full animate-pulse"></div>
+                    <div className="bg-amber-100/40 dark:bg-amber-500/20 p-2 sm:p-6 rounded-lg hover:bg-amber-200/50 dark:hover:bg-amber-500/30 transition-all duration-300 hover:scale-[1.02]">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Globe className="text-amber-500 dark:text-amber-400" size={20} />
+                        <h3 className="text-xl font-semibold text-amber-600 dark:text-amber-400">Web Developer</h3>
+                      </div>
+                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">Freelance</p>
+                      <p className="text-slate-600 dark:text-gray-300 mb-3">Part-time • 2024 - Now</p>
+                      <p className="text-slate-500 dark:text-gray-400">
+                        Building clean and functional websites with modern technologies,
+                        focusing on responsive design and optimal user experiences.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ScrollTriggeredSection>
+
           {/* Education Section */}
-          <ScrollTriggeredSection animationType="slideLeft" className="mb-20 px-2 sm:px-4">
-            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-3 sm:p-6 md:p-8 border border-green-200/50 dark:border-white/10 hover:border-green-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/10 dark:hover:shadow-green-500/20">
+          <ScrollTriggeredSection animationType="slideLeft" className="mb-10 sm:mb-20 px-1 sm:px-4">
+            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-green-200/50 dark:border-white/10 hover:border-green-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/10 dark:hover:shadow-green-500/20">
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <GraduationCap className="text-green-500 dark:text-green-400 sm:w-7 sm:h-7" size={24} />
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">Education</h2>
               </div>
               <div className="space-y-6">
                 <div className="relative">
-                  <div className="absolute left-3 sm:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-green-400 to-transparent"></div>
+                  <div className="absolute left-3 sm:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-green-400 via-lime-400 to-transparent"></div>
 
                   <div className="pl-8 sm:pl-16 relative mb-6 sm:mb-8">
                     <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse"></div>
-                    <div className="bg-green-100/40 dark:bg-green-500/20 p-3 sm:p-6 rounded-lg hover:bg-green-200/50 dark:hover:bg-green-500/30 transition-all duration-300 hover:scale-[1.02]">
+                    <div className="bg-green-100/40 dark:bg-green-500/20 p-2 sm:p-6 rounded-lg hover:bg-green-200/50 dark:hover:bg-green-500/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center gap-3 mb-3">
                         <Monitor className="text-green-500 dark:text-green-400" size={20} />
                         <h3 className="text-xl font-semibold text-green-600 dark:text-green-400">Computer Engineering</h3>
@@ -1299,11 +1370,11 @@ export default function EnhancedPortfolio() {
                   </div>
 
                   <div className="pl-8 sm:pl-16 relative">
-                    <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full animate-pulse"></div>
-                    <div className="bg-blue-100/40 dark:bg-blue-500/20 p-3 sm:p-6 rounded-lg hover:bg-blue-200/50 dark:hover:bg-blue-500/30 transition-all duration-300 hover:scale-[1.02]">
+                    <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-lime-400 rounded-full animate-pulse"></div>
+                    <div className="bg-lime-50/40 dark:bg-lime-500/20 p-2 sm:p-6 rounded-lg hover:bg-lime-100/50 dark:hover:bg-lime-500/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center gap-3 mb-3">
-                        <Settings className="text-blue-500 dark:text-blue-400" size={20} />
-                        <h3 className="text-xl font-semibold text-blue-600 dark:text-blue-400">Electrical Engineering Studies</h3>
+                        <Settings className="text-lime-500 dark:text-lime-400" size={20} />
+                        <h3 className="text-xl font-semibold text-lime-600 dark:text-lime-400">Electrical Engineering Studies</h3>
                       </div>
                       <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">Electromaros Liceum</p>
                       <p className="text-slate-600 dark:text-gray-300 mb-3">Târgu Mureș, Romania</p>
@@ -1318,56 +1389,9 @@ export default function EnhancedPortfolio() {
             </div>
           </ScrollTriggeredSection>
 
-          {/* Work Experience Section */}
-          <ScrollTriggeredSection animationType="slideRight" className="mb-20 px-2 sm:px-4">
-            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-3 sm:p-6 md:p-8 border border-orange-200/50 dark:border-white/10 hover:border-orange-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 dark:hover:shadow-orange-500/20">
-              <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                <Briefcase className="text-orange-500 dark:text-orange-400 sm:w-7 sm:h-7" size={24} />
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">Work Experience</h2>
-              </div>
-              <div className="space-y-6">
-                <div className="relative">
-                  <div className="absolute left-3 sm:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-400 via-red-400 to-transparent"></div>
-
-                  <div className="pl-8 sm:pl-16 relative mb-6 sm:mb-8">
-                    <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-orange-400 rounded-full animate-pulse"></div>
-                    <div className="bg-orange-100/40 dark:bg-orange-500/20 p-3 sm:p-6 rounded-lg hover:bg-orange-200/50 dark:hover:bg-orange-500/30 transition-all duration-300 hover:scale-[1.02]">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Cog className="text-orange-500 dark:text-orange-400" size={20} />
-                        <h3 className="text-xl font-semibold text-orange-600 dark:text-orange-400">PLC Programmer</h3>
-                      </div>
-                      <p className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Aages S.A.</p>
-                      <p className="text-slate-600 dark:text-gray-300 mb-3">Full-time</p>
-                      <p className="text-slate-500 dark:text-gray-400">
-                        Developing and maintaining industrial automation systems, programming PLCs,
-                        and ensuring optimal performance of manufacturing processes.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pl-8 sm:pl-16 relative">
-                    <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-red-400 rounded-full animate-pulse"></div>
-                    <div className="bg-red-100/40 dark:bg-red-500/20 p-3 sm:p-6 rounded-lg hover:bg-red-200/50 dark:hover:bg-red-500/30 transition-all duration-300 hover:scale-[1.02]">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Globe className="text-red-500 dark:text-red-400" size={20} />
-                        <h3 className="text-xl font-semibold text-red-600 dark:text-red-400">Web Developer</h3>
-                      </div>
-                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">Freelance</p>
-                      <p className="text-slate-600 dark:text-gray-300 mb-3">Part-time</p>
-                      <p className="text-slate-500 dark:text-gray-400">
-                        Building clean and functional websites with modern technologies,
-                        focusing on responsive design and optimal user experiences.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ScrollTriggeredSection>
-
           {/* Skills Section */}
-          <ScrollTriggeredSection animationType="dive" className="mb-20 px-2 sm:px-4">
-            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-3 sm:p-6 md:p-8 border border-purple-200/50 dark:border-white/10 hover:border-purple-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 group">
+          <ScrollTriggeredSection animationType="dive" className="mb-10 sm:mb-20 px-1 sm:px-4">
+            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-purple-200/50 dark:border-white/10 hover:border-purple-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 group">
               <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center text-slate-800 dark:text-white group-hover:scale-105 transition-transform duration-300">Skills & Technologies</h2>
               <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
                 {skills.map((skill, index) => (
@@ -1378,8 +1402,8 @@ export default function EnhancedPortfolio() {
           </ScrollTriggeredSection>
 
           {/* Footer */}
-          <ScrollTriggeredSection animationType="float" className="text-center px-2 sm:px-4">
-            <div className="bg-gradient-to-r from-blue-200/50 to-purple-200/50 dark:from-blue-600/30 dark:to-purple-600/30 backdrop-blur-lg rounded-2xl p-3 sm:p-6 md:p-8 border border-blue-200/60 dark:border-white/10 hover:border-blue-300/80 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20 group">
+          <ScrollTriggeredSection animationType="float" className="text-center px-1 sm:px-4">
+            <div className="bg-gradient-to-r from-blue-200/50 to-purple-200/50 dark:from-blue-600/30 dark:to-purple-600/30 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-blue-200/60 dark:border-white/10 hover:border-blue-300/80 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20 group">
               <h3 className="text-xl md:text-2xl font-semibold mb-4 text-slate-800 dark:text-white group-hover:scale-105 transition-transform duration-300">Let's Connect</h3>
               <p className="text-slate-600 dark:text-gray-300 mb-6">
                 Always open to discussing new opportunities, collaborations, or just having a chat about technology!

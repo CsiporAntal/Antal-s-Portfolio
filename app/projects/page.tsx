@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { projects } from "./project-data";
+import { socialLinks } from "../lib/config";
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ExternalLink, Calendar, Code2 } from 'lucide-react';
 
@@ -608,13 +609,13 @@ export default function Projects() {
             <p className="text-slate-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
               I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
             </p>
-            <Link
-              href="/"
+            <a
+              href={`mailto:${socialLinks.email}`}
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-500 hover:to-purple-500 transition-all duration-300 hover:scale-105 hover:shadow-xl font-medium"
             >
               Get in Touch
               <ExternalLink size={16} />
-            </Link>
+            </a>
           </div>
         </ScrollTriggeredSection>
       </div>

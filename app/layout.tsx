@@ -171,7 +171,7 @@ export default function RootLayout({
 
           {/* Main Content */}
           <main className="flex-1 w-full overflow-visible">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-4">
+            <div className="container mx-auto px-1 sm:px-6 lg:px-8 max-w-7xl py-1">
               {children}
             </div>
           </main>
