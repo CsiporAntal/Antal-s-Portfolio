@@ -1298,7 +1298,7 @@ export default function EnhancedPortfolio() {
                         <h3 className="text-xl font-semibold text-red-600 dark:text-red-400">PLC Programmer</h3>
                       </div>
                       <p className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Aages S.A.</p>
-                      <p className="text-slate-600 dark:text-gray-300 mb-3">Full-time • 2022 - Now</p>
+                      <p className="text-slate-600 dark:text-gray-300 mb-3">Full-time • 2023 - Now</p>
                       <p className="text-slate-500 dark:text-gray-400">
                         Developing and maintaining industrial automation systems, programming PLCs,
                         and ensuring optimal performance of manufacturing processes.
