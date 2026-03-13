@@ -1,12 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Navbar } from "./components/nav";
 import Footer from "./components/footer";
 import { ThemeProvider } from "./components/theme-switch";
 import { metaData, socialLinks } from "./lib/config";
 
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(metaData.baseUrl),
@@ -100,7 +98,6 @@ export default function RootLayout({
   return (
       <html
           lang="en"
-          className={`${inter.className}`}
           suppressHydrationWarning
       >
       <head>
