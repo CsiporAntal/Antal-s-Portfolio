@@ -1262,6 +1262,14 @@ export default function EnhancedPortfolio() {
                           </p>
                         </div>
                       </div>
+                      <div className="flex items-start gap-3 p-2 sm:p-4 bg-green-100/50 dark:bg-green-500/20 rounded-lg hover:bg-green-200/60 dark:hover:bg-green-500/30 transition-colors duration-300">
+                        <Calendar className="text-green-600 dark:text-green-400 mt-1 flex-shrink-0 sm:w-5 sm:h-5" size={18} />
+                        <div>
+                          <p className="text-slate-600 dark:text-gray-300">
+                            Part-time Festival Organizer at <span className="text-green-700 dark:text-green-400 font-semibold">MOMENTS & MORE SRL</span>
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     <div className="space-y-3 sm:space-y-4">
                       <p className="text-slate-600 dark:text-gray-300 leading-relaxed">

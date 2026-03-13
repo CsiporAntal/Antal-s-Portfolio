@@ -1280,8 +1280,13 @@ export default function Photos() {
             <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent select-none leading-tight">
               My Photos
             </h1>
-            <p className="text-lg md:text-xl text-slate-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-              A collection of my favorite photos organized by device and category.
+            <p className="text-lg md:text-xl text-slate-600 dark:text-gray-300 mb-4 max-w-4xl mx-auto leading-relaxed">
+              This gallery is a visual timeline of my mobile photography journey. Each phone has its own look,
+              strengths, and limitations, and I like documenting how different cameras shape the same moments.
+            </p>
+            <p className="text-base md:text-lg text-slate-500 dark:text-gray-400 mb-8 max-w-4xl mx-auto leading-relaxed">
+              I mostly shoot everyday scenes, city walks, travel details, and spontaneous frames. The sections below
+              include my favorite picks plus full per-phone collections, with notes about what each device does best.
             </p>
           </div>
         </ScrollTriggeredSection>
@@ -1295,10 +1300,14 @@ export default function Photos() {
                  }
                }}
           >
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-3">
               <Heart className="text-red-500" size={28} />
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Favorites</h2>
             </div>
+            <p className="text-slate-600 dark:text-gray-300 mb-6 leading-relaxed">
+              These are the images I return to most often. They represent my favorite mix of composition, color,
+              timing, and camera behavior across different phones.
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {favorites.map((image, index) => (
                 <div
@@ -1328,6 +1337,13 @@ export default function Photos() {
         </ScrollTriggeredSection>
 
         {/* Phone Categories */}
+        <ScrollTriggeredSection animationType="slideUp" className="px-4 mb-8">
+          <p className="text-slate-600 dark:text-gray-300 leading-relaxed max-w-4xl">
+            I keep all phones in the same gallery on purpose so it is easier to compare rendering styles,
+            dynamic range, and overall character. Some are true camera-first flagships, while others are
+            budget or older devices that still have their own charm.
+          </p>
+        </ScrollTriggeredSection>
         <div className="space-y-16">
           {phoneImages.map((phoneCategory, categoryIndex) => (
             <ScrollTriggeredSection 
