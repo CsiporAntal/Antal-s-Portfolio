@@ -992,12 +992,42 @@ const photoData: PhotoImage[] = [
 ];
 
 const phoneCategories = [
-  { id: 'xiaomi-15-ultra', name: 'Xiaomi 15 Ultra', icon: '📱' },
-  { id: 'oppo-find-x8-pro', name: 'Oppo Find X8 Pro', icon: '📱' },
-  { id: 'one-plus-12', name: 'One Plus 12', icon: '📱' },
-  { id: 'honor-magic-6-pro', name: 'Honor Magic 6 Pro', icon: '📱' },
-  { id: 'huawei-p30-pro', name: 'Huawei P30 Pro', icon: '📱' },
-  { id: 'nothing-cmf-2-pro', name: 'Nothing CMF 2 Pro', icon: '📱' },
+  {
+    id: 'xiaomi-15-ultra',
+    name: 'Xiaomi 15 Ultra',
+    icon: '📱',
+    description: 'Xiaomi is amazing at taking photos, and I absolutely love the telemacro results from this phone.'
+  },
+  {
+    id: 'oppo-find-x8-pro',
+    name: 'Oppo Find X8 Pro',
+    icon: '📱',
+    description: 'Oppo is also really amazing, especially in the way it handles detail and dynamic range.'
+  },
+  {
+    id: 'one-plus-12',
+    name: 'One Plus 12',
+    icon: '📱',
+    description: 'OnePlus is surprisingly okay for a phone that is not heavily camera-focused.'
+  },
+  {
+    id: 'honor-magic-6-pro',
+    name: 'Honor Magic 6 Pro',
+    icon: '📱',
+    description: 'Honor is also good, especially for its price, and I really love the colors it produces.'
+  },
+  {
+    id: 'huawei-p30-pro',
+    name: 'Huawei P30 Pro',
+    icon: '📱',
+    description: 'The Huawei P30 Pro is dated now, but compared with other 7-year-old phones, it is still amazing.'
+  },
+  {
+    id: 'nothing-cmf-2-pro',
+    name: 'Nothing CMF 2 Pro',
+    icon: '📱',
+    description: 'The Nothing CMF 2 Pro is a very budget phone. The camera is not great and can be oversharpened, but it is okay for quick social posts.'
+  },
 ];
 
 export default function Photos() {
@@ -1316,6 +1346,9 @@ export default function Photos() {
                   <Smartphone className="text-blue-500 dark:text-blue-400" size={28} />
                   <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{phoneCategory.name}</h2>
                 </div>
+                <p className="text-slate-600 dark:text-gray-300 mb-6 leading-relaxed">
+                  {phoneCategory.description}
+                </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {phoneCategory.images.map((image, index) => (
                     <div
