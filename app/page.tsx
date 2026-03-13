@@ -1171,7 +1171,7 @@ export default function EnhancedPortfolio() {
 
             <div className="mt-8">
               <h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition-all duration-300 hover:scale-105 select-none"
+                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.2] pb-1 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition-all duration-300 hover:scale-105 select-none"
               >
                 Hi, I'm {metaData.title.replace("'s Portfolio", "")}
                 <span 
@@ -1266,7 +1266,7 @@ export default function EnhancedPortfolio() {
                         <Calendar className="text-green-600 dark:text-green-400 mt-1 flex-shrink-0 sm:w-5 sm:h-5" size={18} />
                         <div>
                           <p className="text-slate-600 dark:text-gray-300">
-                            Part-time Festival Organizer at <span className="text-green-700 dark:text-green-400 font-semibold">MOMENTS & MORE SRL</span>
+                            Part-time Event Organizer at <span className="text-green-700 dark:text-green-400 font-semibold">MOMENTS & MORE S.R.L.</span>
                           </p>
                         </div>
                       </div>
@@ -1303,7 +1303,7 @@ export default function EnhancedPortfolio() {
                     <div className="bg-red-100/40 dark:bg-red-500/20 p-2 sm:p-6 rounded-lg hover:bg-red-200/50 dark:hover:bg-red-500/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center gap-3 mb-3">
                         <Cog className="text-red-500 dark:text-red-400" size={20} />
-                        <h3 className="text-xl font-semibold text-red-600 dark:text-red-400">PLC Programmer</h3>
+                        <h3 className="text-xl font-semibold leading-[1.25] pb-0.5 text-red-600 dark:text-red-400">PLC Programmer</h3>
                       </div>
                       <p className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Aages S.A.</p>
                       <p className="text-slate-600 dark:text-gray-300 mb-3">Full-time • 2023 - Now</p>
@@ -1319,13 +1319,14 @@ export default function EnhancedPortfolio() {
                     <div className="bg-orange-100/40 dark:bg-orange-500/20 p-2 sm:p-6 rounded-lg hover:bg-orange-200/50 dark:hover:bg-orange-500/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center gap-3 mb-3">
                         <Calendar className="text-orange-500 dark:text-orange-400" size={20} />
-                        <h3 className="text-xl font-semibold text-orange-600 dark:text-orange-400">Event Manager</h3>
+                        <h3 className="text-xl font-semibold leading-[1.25] pb-0.5 text-orange-600 dark:text-orange-400">Event Manager</h3>
                       </div>
-                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">MOMENTS & MORE SRL</p>
+                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">MOMENTS & MORE S.R.L.</p>
                       <p className="text-slate-600 dark:text-gray-300 mb-3">Part-time • 2025 - Now</p>
                       <p className="text-slate-500 dark:text-gray-400">
-                        Organizing and managing festivals and events, coordinating logistics,
-                        and ensuring memorable experiences for attendees.
+                        Organizing and managing festivals and events while also handling technical execution,
+                        including event websites, online registration flows, digital promotion assets,
+                        and on-site systems needed to deliver smooth attendee experiences.
                       </p>
                     </div>
                   </div>
@@ -1335,7 +1336,7 @@ export default function EnhancedPortfolio() {
                     <div className="bg-amber-100/40 dark:bg-amber-500/20 p-2 sm:p-6 rounded-lg hover:bg-amber-200/50 dark:hover:bg-amber-500/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center gap-3 mb-3">
                         <Globe className="text-amber-500 dark:text-amber-400" size={20} />
-                        <h3 className="text-xl font-semibold text-amber-600 dark:text-amber-400">Web Developer</h3>
+                        <h3 className="text-xl font-semibold leading-[1.25] pb-0.5 text-amber-600 dark:text-amber-400">Web Developer</h3>
                       </div>
                       <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">Freelance</p>
                       <p className="text-slate-600 dark:text-gray-300 mb-3">Part-time • 2024 - Now</p>
