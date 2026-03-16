@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: metaData.pages.projects.title,
     description: metaData.pages.projects.description,
     url: `${metaData.baseUrl}/projects`,
-    siteName: metaData.name,
+    siteName: metaData.siteName,
     images: metaData.ogImage,
     locale: "en_US",
     type: "website",
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     title: metaData.pages.projects.title,
     description: metaData.pages.projects.description,
     card: "summary_large_image",
+    creator: "@CsiporAntal",
   },
   alternates: {
     canonical: `${metaData.baseUrl}/projects`,
