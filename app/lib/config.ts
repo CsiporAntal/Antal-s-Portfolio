@@ -1,10 +1,15 @@
 export const metaData = {
   baseUrl: "https://csantal.dev",
   title: "Csipor Antal's Portfolio",
-  name: "Csipor Antal Portfolio",
+  name: "Csipor Antal",
+  siteName: "Csipor Antal Portfolio",
   ogImage: "/profile.png",
+  locale: "en_US",
+  language: "en-US",
+  category: "technology",
+  creatorRole: "PLC Programmer & Web Developer",
   description:
-      "Explore Csipor Antal's professional portfolio featuring PLC programming expertise, industrial automation projects, and modern web development solutions from Romania.",
+      "Explore Csipor Antal's professional portfolio featuring PLC programming expertise, industrial automation projects, and modern web development solutions from Mureș County, Romania.",
   keywords: [
     "Csipor Antal",
     "PLC programmer",
@@ -14,12 +19,13 @@ export const metaData = {
     "automation",
     "programming",
     "web design",
-    "Romania"
+    "Romania",
+    "Mureș County"
   ],
   pages: {
     home: {
       title: "Csipor Antal's Portfolio",
-      description: "Explore Csipor Antal's professional portfolio featuring PLC programming expertise, industrial automation projects, and modern web development solutions from Romania."
+      description: "Explore Csipor Antal's professional portfolio featuring PLC programming expertise, industrial automation projects, and modern web development solutions from Mureș County, Romania."
     },
     photos: {
       title: "Photos - Csipor Antal", 
