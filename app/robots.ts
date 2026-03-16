@@ -8,12 +8,10 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         disallow: [
-          '/api/', 
-          '/admin/', 
+          '/api/',
+          '/admin/',
           '/private/',
-          '/feed/', // Prevent duplicate feed URLs
-          '/*.xml', // Prevent direct access to XML files
-          '/*.json', // Prevent direct access to JSON files
+          '/feed/',
         ],
       },
       {
@@ -22,8 +20,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/api/',
           '/feed/',
-          '/*.xml',
-          '/*.json',
         ],
       },
     ],
