@@ -8,6 +8,15 @@ import { metaData, socialLinks } from "./lib/config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(metaData.baseUrl),
+  applicationName: metaData.siteName,
+  referrer: "origin-when-cross-origin",
+  category: metaData.category,
+  classification: "Portfolio",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   title: {
     default: metaData.title,
     template: `%s | ${metaData.title}`,
@@ -22,8 +31,8 @@ export const metadata: Metadata = {
     title: metaData.title,
     description: metaData.description,
     url: `${metaData.baseUrl}/`,
-    siteName: metaData.name,
-    locale: "en_US",
+    siteName: metaData.siteName,
+    locale: metaData.locale,
     type: "website",
   },
   robots: {
@@ -38,17 +47,21 @@ export const metadata: Metadata = {
     },
   },
   twitter: {
-    title: metaData.name,
+    title: metaData.title,
     card: "summary_large_image",
     description: metaData.description,
+    creator: "@CsiporAntal",
+    images: [metaData.ogImage],
   },
   icons: {
     icon: "/favicon.ico",
   },
+  manifest: "/manifest.webmanifest",
   alternates: {
     canonical: `${metaData.baseUrl}/`,
     languages: {
-      'en-US': `${metaData.baseUrl}/`,
+      "en-US": `${metaData.baseUrl}/`,
+      "x-default": `${metaData.baseUrl}/`,
     },
   },
   verification: {
@@ -64,21 +77,22 @@ export default function RootLayout({
                                    }: {
   children: React.ReactNode;
 }) {
-  // Structured data for SEO
-  const structuredData = {
+  const personStructuredData = {
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Csipor Antal",
-    "jobTitle": "PLC Programmer & Web Developer",
-    "description": "Personal portfolio of Csipor Antal — PLC programmer and web developer based in Romania.",
+    "jobTitle": metaData.creatorRole,
+    "description": "Personal portfolio of Csipor Antal — PLC programmer and web developer based in Mureș County, Romania.",
     "url": metaData.baseUrl,
     "image": `${metaData.baseUrl}${metaData.ogImage}`,
     "sameAs": [
-      socialLinks.github
+      socialLinks.github,
+      socialLinks.linkedin
     ],
     "address": {
       "@type": "PostalAddress",
-      "addressLocality": "Mureș",
+      "addressLocality": "Mureș County",
+      "addressRegion": "Mureș",
       "addressCountry": "Romania"
     },
     "worksFor": {
@@ -93,6 +107,38 @@ export default function RootLayout({
       "Next.js",
       "Control Systems"
     ]
+  };
+
+  const websiteStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": metaData.siteName,
+    "url": metaData.baseUrl,
+    "description": metaData.description,
+    "inLanguage": metaData.language,
+    "publisher": {
+      "@type": "Person",
+      "name": metaData.name,
+      "url": metaData.baseUrl
+    }
+  };
+
+  const portfolioStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": metaData.title,
+    "url": metaData.baseUrl,
+    "description": metaData.description,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": metaData.siteName,
+      "url": metaData.baseUrl
+    },
+    "about": {
+      "@type": "Person",
+      "name": metaData.name,
+      "jobTitle": metaData.creatorRole
+    }
   };
 
   return (
@@ -122,7 +168,19 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData),
+            __html: JSON.stringify(personStructuredData),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteStructuredData),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(portfolioStructuredData),
           }}
         />
         <script
