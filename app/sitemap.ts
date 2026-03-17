@@ -7,8 +7,7 @@ const BaseUrl = metaData.baseUrl.endsWith("/")
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const currentDate = new Date().toISOString();
-  
-  // Main pages with proper priorities and change frequencies
+
   const mainPages = [
     {
       url: BaseUrl,
