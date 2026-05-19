@@ -983,6 +983,23 @@ const photoData: PhotoImage[] = [
   { id: 'huawei6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899389/IMG_20230708_161725_k7orna.jpg', alt: 'Huawei P30 Pro Photo 6', category: 'phones', phone: 'huawei-p30-pro' },
   
 
+  // Samsung S25 Ultra
+  { id: 'samsung1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198863/20260101_145436_gufynb.jpg', alt: 'Samsung S25 Ultra Photo 1', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198868/20260103_083813_s7nlgw.jpg', alt: 'Samsung S25 Ultra Photo 2', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198864/20260101_145627_dyb0kl.jpg', alt: 'Samsung S25 Ultra Photo 3', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198864/20260103_152133_aux77q.jpg', alt: 'Samsung S25 Ultra Photo 4', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198864/20260111_120605_jvdvgg.jpg', alt: 'Samsung S25 Ultra Photo 5', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198863/20260207_232850_ii4avk.jpg', alt: 'Samsung S25 Ultra Photo 6', category: 'phones', phone: 'samsung-s25-ultra' },
+
+  // Nothing CMF 2 Pro
+  { id: 'nothing1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659577/IMG_20250715_182122156_uwbxok.jpg', alt: 'Nothing CMF 2 Pro Photo 1', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659574/IMG_20250822_151829822_nuwgwv.jpg', alt: 'Nothing CMF 2 Pro Photo 2', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659580/IMG_20250822_153506081_cemwf2.jpg', alt: 'Nothing CMF 2 Pro Photo 3', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659575/IMG_20250822_150809900_ozxkr7.jpg', alt: 'Nothing CMF 2 Pro Photo 4', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659573/IMG_20250822_151040054_vmecgu.jpg', alt: 'Nothing CMF 2 Pro Photo 5', category: 'phones', phone: 'nothing-cmf-2-pro' },
+  { id: 'nothing6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659575/IMG_20250822_150415949_hcij6o.jpg', alt: 'Nothing CMF 2 Pro Photo 6', category: 'phones', phone: 'nothing-cmf-2-pro' },
+
+
   // Huawei Pura 80 Ultra
   { id: 'pura1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779201023/IMG_20260412_164605_noy7va.jpg', alt: 'Huawei Pura 80 Ultra Photo 1', category: 'phones', phone: 'huawei-pura-80-ultra' },
   { id: 'pura2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779200853/IMG_20260327_152407_be6i6r.jpg', alt: 'Huawei Pura 80 Ultra Photo 2', category: 'phones', phone: 'huawei-pura-80-ultra' },
@@ -997,13 +1014,6 @@ const photoData: PhotoImage[] = [
   { id: 'pura11', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779199870/IMG_20260227_155740_ol0qsb.jpg', alt: 'Huawei Pura 80 Ultra Photo 11', category: 'phones', phone: 'huawei-pura-80-ultra' },
   { id: 'pura12', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779199784/IMG_20260226_154004_naagqj.jpg', alt: 'Huawei Pura 80 Ultra Photo 12', category: 'phones', phone: 'huawei-pura-80-ultra' },
 
-  // Nothing CMF 2 Pro
-  { id: 'nothing1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659577/IMG_20250715_182122156_uwbxok.jpg', alt: 'Nothing CMF 2 Pro Photo 1', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659574/IMG_20250822_151829822_nuwgwv.jpg', alt: 'Nothing CMF 2 Pro Photo 2', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659580/IMG_20250822_153506081_cemwf2.jpg', alt: 'Nothing CMF 2 Pro Photo 3', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659575/IMG_20250822_150809900_ozxkr7.jpg', alt: 'Nothing CMF 2 Pro Photo 4', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659573/IMG_20250822_151040054_vmecgu.jpg', alt: 'Nothing CMF 2 Pro Photo 5', category: 'phones', phone: 'nothing-cmf-2-pro' },
-  { id: 'nothing6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659575/IMG_20250822_150415949_hcij6o.jpg', alt: 'Nothing CMF 2 Pro Photo 6', category: 'phones', phone: 'nothing-cmf-2-pro' },
 ];
 
 const phoneCategories = [
@@ -1039,16 +1049,23 @@ const phoneCategories = [
   },
 
   {
-    id: 'huawei-pura-80-ultra',
-    name: 'Huawei Pura 80 Ultra',
+    id: 'samsung-s25-ultra',
+    name: 'Samsung S25 Ultra',
     icon: '📱',
-    description: 'The Huawei Pura 80 Ultra is the best camera phone I have tried so far, with amazing quality and crazy good macro and telephoto images.'
+    description: 'The Samsung S25 Ultra did not impress me as much as the top Chinese camera phones, though it can still produce solid shots in good light.'
   },
   {
     id: 'nothing-cmf-2-pro',
     name: 'Nothing CMF 2 Pro',
     icon: '📱',
     description: 'The Nothing CMF 2 Pro is a very budget phone. The camera is not great and can be oversharpened, but it is okay for quick social posts.'
+  },
+
+  {
+    id: 'huawei-pura-80-ultra',
+    name: 'Huawei Pura 80 Ultra',
+    icon: '📱',
+    description: 'The Huawei Pura 80 Ultra is the best camera phone I have used so far, delivering exceptional image quality with standout macro detail and incredibly strong telephoto performance.'
   },
 ];
 
