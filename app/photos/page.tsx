@@ -982,6 +982,15 @@ const photoData: PhotoImage[] = [
   { id: 'huawei5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899392/IMG_20240819_160511_fo12jj.jpg', alt: 'Huawei P30 Pro Photo 5', category: 'phones', phone: 'huawei-p30-pro' },
   { id: 'huawei6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1753899389/IMG_20230708_161725_k7orna.jpg', alt: 'Huawei P30 Pro Photo 6', category: 'phones', phone: 'huawei-p30-pro' },
   
+
+  // Samsung S25 Ultra
+  { id: 'samsung1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198863/20260101_145436_gufynb.jpg', alt: 'Samsung S25 Ultra Photo 1', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198868/20260103_083813_s7nlgw.jpg', alt: 'Samsung S25 Ultra Photo 2', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung3', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198864/20260101_145627_dyb0kl.jpg', alt: 'Samsung S25 Ultra Photo 3', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung4', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198864/20260103_152133_aux77q.jpg', alt: 'Samsung S25 Ultra Photo 4', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung5', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198864/20260111_120605_jvdvgg.jpg', alt: 'Samsung S25 Ultra Photo 5', category: 'phones', phone: 'samsung-s25-ultra' },
+  { id: 'samsung6', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1779198863/20260207_232850_ii4avk.jpg', alt: 'Samsung S25 Ultra Photo 6', category: 'phones', phone: 'samsung-s25-ultra' },
+
   // Nothing CMF 2 Pro
   { id: 'nothing1', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659577/IMG_20250715_182122156_uwbxok.jpg', alt: 'Nothing CMF 2 Pro Photo 1', category: 'phones', phone: 'nothing-cmf-2-pro' },
   { id: 'nothing2', src: 'https://res.cloudinary.com/dtteqzgh7/image/upload/v1758659574/IMG_20250822_151829822_nuwgwv.jpg', alt: 'Nothing CMF 2 Pro Photo 2', category: 'phones', phone: 'nothing-cmf-2-pro' },
@@ -1021,6 +1030,13 @@ const phoneCategories = [
     name: 'Huawei P30 Pro',
     icon: '📱',
     description: 'The Huawei P30 Pro is dated now, but compared with other 7-year-old phones, it is still amazing.'
+  },
+
+  {
+    id: 'samsung-s25-ultra',
+    name: 'Samsung S25 Ultra',
+    icon: '📱',
+    description: 'The Samsung S25 Ultra delivers very versatile results with strong zoom performance and consistent processing.'
   },
   {
     id: 'nothing-cmf-2-pro',
