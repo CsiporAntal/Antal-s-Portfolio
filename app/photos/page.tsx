@@ -570,8 +570,11 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
     const now = performance.now();
     const w = canvas.width;
     const h = canvas.height;
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+    const canvasRect = canvas.getBoundingClientRect();
+    const canvasOriginX = canvasRect.left + window.scrollX;
+    const canvasOriginY = canvasRect.top + window.scrollY;
+    const mouseCanvasX = mouseRef.current.x + window.scrollX - canvasOriginX;
+    const mouseCanvasY = mouseRef.current.y + window.scrollY - canvasOriginY;
 
     ctx.clearRect(0, 0, w, h);
     
@@ -579,8 +582,8 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
       const alpha = particle.life / particle.maxLife;
       const size = particle.size * alpha;
       
-      const screenX = particle.x - scrollX;
-      const screenY = particle.y - scrollY;
+      const screenX = particle.x - canvasOriginX;
+      const screenY = particle.y - canvasOriginY;
       
       if (screenX < -50 || screenX > w + 50 || screenY < -50 || screenY > h + 50) {
         return;
@@ -616,7 +619,7 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
         ctx.arc(screenX, screenY, size * 2.2, 0, Math.PI * 2);
         ctx.stroke();
 
-        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const mouseDistanceSquared = (screenX - mouseCanvasX) ** 2 + (screenY - mouseCanvasY) ** 2;
         const connectionRadiusSquared = 150 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
           const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
@@ -625,7 +628,7 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
           ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(screenX, screenY);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+          ctx.lineTo(mouseCanvasX, mouseCanvasY);
           ctx.stroke();
         }
       }
@@ -639,7 +642,7 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
         ctx.arc(screenX, screenY, size * 1.8, 0, Math.PI * 2);
         ctx.stroke();
 
-        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const mouseDistanceSquared = (screenX - mouseCanvasX) ** 2 + (screenY - mouseCanvasY) ** 2;
         const connectionRadiusSquared = 300 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
           const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
@@ -648,14 +651,14 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
           ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(screenX, screenY);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+          ctx.lineTo(mouseCanvasX, mouseCanvasY);
           ctx.stroke();
         }
       }
 
       // Connection lines for hover particles
       if (particle.type === 'hover') {
-        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const mouseDistanceSquared = (screenX - mouseCanvasX) ** 2 + (screenY - mouseCanvasY) ** 2;
         const connectionRadiusSquared = 150 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
           const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
@@ -664,21 +667,21 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
           ctx.lineWidth = 1.5;
           ctx.beginPath();
           ctx.moveTo(screenX, screenY);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+          ctx.lineTo(mouseCanvasX, mouseCanvasY);
           ctx.stroke();
         }
       }
       
       // Connection lines for ambient particles
       if (particle.type === 'ambient') {
-        const mouseDistance = Math.sqrt((screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2);
+        const mouseDistance = Math.sqrt((screenX - mouseCanvasX) ** 2 + (screenY - mouseCanvasY) ** 2);
         if (mouseDistance < 100) {
           const connectionAlpha = (100 - mouseDistance) / 100 * 0.3;
           ctx.strokeStyle = `rgba(139, 92, 246, ${connectionAlpha})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(screenX, screenY);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+          ctx.lineTo(mouseCanvasX, mouseCanvasY);
           ctx.stroke();
         }
       }
@@ -696,8 +699,12 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
     if (!canvas) return;
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const parent = canvas.parentElement;
+      const width = window.innerWidth;
+      const height = Math.ceil(parent?.scrollHeight ?? window.innerHeight);
+
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -764,6 +771,9 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
     };
 
     resizeCanvas();
+
+    const resizeObserver = new ResizeObserver(resizeCanvas);
+    if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
     
     // Add initial ambient particles
     for (let i = 0; i < 15; i++) {
@@ -807,6 +817,7 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
       // window.removeEventListener('click', handleClick);
       // window.removeEventListener('resize', handleResize);
       // clearInterval(ambientInterval);
+      resizeObserver.disconnect();
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
@@ -836,7 +847,7 @@ const ParticleSystem = ({ isPhotoSwipeOpen }: { isPhotoSwipeOpen: boolean }) => 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="absolute top-0 left-1/2 w-screen h-full -translate-x-1/2 pointer-events-none z-0"
       style={{ 
         background: 'transparent',
         pointerEvents: 'none', // Ensure canvas never blocks clicks
@@ -1316,15 +1327,13 @@ export default function Photos() {
         {/* Header Section */}
         <ScrollTriggeredSection animationType="slideUp" className="mb-16 px-4">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold leading-[1.2] pb-1 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent select-none">
+            <h1 className="artistic-display text-4xl md:text-5xl leading-[1.2] pb-1 mb-6 select-none">
               My Photos
             </h1>
-            <p className="text-lg md:text-xl text-slate-600 dark:text-gray-300 mb-4 max-w-4xl mx-auto leading-relaxed">
+            <p className="organic-copy text-lg md:text-xl mb-8 max-w-4xl mx-auto leading-relaxed">
               This gallery is a visual timeline of my mobile photography journey. Each phone has its own look,
-              strengths, and limitations, and I like documenting how different cameras shape the same moments.
-            </p>
-            <p className="text-base md:text-lg text-slate-500 dark:text-gray-400 mb-8 max-w-4xl mx-auto leading-relaxed">
-              I mostly shoot everyday scenes, city walks, travel details, and spontaneous frames. The sections below
+              strengths, and limitations, and I like documenting how different cameras shape the same moments. I mostly
+              shoot everyday scenes, city walks, travel details, and spontaneous frames. The sections below
               include my favorite picks plus full per-phone collections, with notes about what each device does best.
             </p>
           </div>
@@ -1341,7 +1350,7 @@ export default function Photos() {
           >
             <div className="flex items-center gap-3 mb-3">
               <Heart className="text-red-500" size={28} />
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Favorites</h2>
+              <h2 className="organic-heading text-2xl">Favorites</h2>
             </div>
             <p className="text-slate-600 dark:text-gray-300 mb-6 leading-relaxed">
               These are the images I return to most often. They represent my favorite mix of composition, color,
@@ -1399,7 +1408,7 @@ export default function Photos() {
               >
                 <div className="flex items-center gap-3 mb-6">
                   <Smartphone className="text-blue-500 dark:text-blue-400" size={28} />
-                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{phoneCategory.name}</h2>
+                  <h2 className="organic-heading text-2xl">{phoneCategory.name}</h2>
                 </div>
                 <p className="text-slate-600 dark:text-gray-300 mb-6 leading-relaxed">
                   {phoneCategory.description}

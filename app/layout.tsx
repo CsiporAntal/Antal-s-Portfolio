@@ -216,7 +216,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
       >
-        <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-200 via-indigo-100 to-purple-100 dark:from-slate-900 dark:via-purple-900/20 dark:to-slate-900 text-slate-800 dark:text-white transition-colors duration-300">
+        <div className="relative isolate flex flex-col min-h-screen overflow-hidden bg-gradient-to-br from-slate-200 via-indigo-100 to-purple-100 dark:from-slate-900 dark:via-purple-900/20 dark:to-slate-900 text-slate-800 dark:text-white transition-colors duration-300">
+          <div className="organic-backdrop" aria-hidden="true">
+            <span className="organic-orb organic-orb-left-top" />
+            <span className="organic-orb organic-orb-right-middle" />
+            <span className="organic-orb organic-orb-left-bottom" />
+          </div>
           {/* Navigation */}
           <header className="sticky top-0 z-50 w-full border-b bg-background/30 backdrop-blur supports-[backdrop-filter]:bg-background/20 transition-all duration-300" id="navbar">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
@@ -225,7 +230,7 @@ export default function RootLayout({
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 w-full overflow-visible">
+          <main className="relative z-10 flex-1 w-full overflow-visible">
             <div className="container mx-auto px-1 sm:px-6 lg:px-8 max-w-7xl py-1">
               {children}
             </div>

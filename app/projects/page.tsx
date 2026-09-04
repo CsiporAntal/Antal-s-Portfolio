@@ -31,7 +31,6 @@ const ParticleSystem = () => {
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
   const animationRef = useRef<number | undefined>(undefined);
-  const lastParticleTime = useRef(0);
 
   const createParticle = useCallback((x: number, y: number, type: 'mouse' | 'click' | 'ambient' | 'hover' | 'clickconnect' | 'air' = 'ambient'): Particle => {
     const baseVelocity = type === 'click' ? 8 : type === 'mouse' ? 3 : type === 'hover' ? 2 : type === 'clickconnect' ? 1.5 : type === 'air' ? 0.8 : 1;
@@ -180,8 +179,11 @@ const ParticleSystem = () => {
     const now = performance.now();
     const w = canvas.width;
     const h = canvas.height;
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+    const canvasRect = canvas.getBoundingClientRect();
+    const canvasOriginX = canvasRect.left + window.scrollX;
+    const canvasOriginY = canvasRect.top + window.scrollY;
+    const mouseCanvasX = mouseRef.current.x + window.scrollX - canvasOriginX;
+    const mouseCanvasY = mouseRef.current.y + window.scrollY - canvasOriginY;
 
     ctx.clearRect(0, 0, w, h);
     
@@ -189,8 +191,8 @@ const ParticleSystem = () => {
       const alpha = particle.life / particle.maxLife;
       const size = particle.size * alpha;
       
-      const screenX = particle.x - scrollX;
-      const screenY = particle.y - scrollY;
+      const screenX = particle.x - canvasOriginX;
+      const screenY = particle.y - canvasOriginY;
       
       if (screenX < -50 || screenX > w + 50 || screenY < -50 || screenY > h + 50) {
         return;
@@ -226,7 +228,7 @@ const ParticleSystem = () => {
         ctx.arc(screenX, screenY, size * 2.2, 0, Math.PI * 2);
         ctx.stroke();
 
-        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const mouseDistanceSquared = (screenX - mouseCanvasX) ** 2 + (screenY - mouseCanvasY) ** 2;
         const connectionRadiusSquared = 150 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
           const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
@@ -235,7 +237,7 @@ const ParticleSystem = () => {
           ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(screenX, screenY);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+          ctx.lineTo(mouseCanvasX, mouseCanvasY);
           ctx.stroke();
         }
       }
@@ -249,7 +251,7 @@ const ParticleSystem = () => {
         ctx.arc(screenX, screenY, size * 1.8, 0, Math.PI * 2);
         ctx.stroke();
 
-        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const mouseDistanceSquared = (screenX - mouseCanvasX) ** 2 + (screenY - mouseCanvasY) ** 2;
         const connectionRadiusSquared = 300 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
           const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
@@ -258,14 +260,14 @@ const ParticleSystem = () => {
           ctx.lineWidth = 2.5;
           ctx.beginPath();
           ctx.moveTo(screenX, screenY);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+          ctx.lineTo(mouseCanvasX, mouseCanvasY);
           ctx.stroke();
         }
       }
 
       // Connection lines for hover particles
       if (particle.type === 'hover') {
-        const mouseDistanceSquared = (screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2;
+        const mouseDistanceSquared = (screenX - mouseCanvasX) ** 2 + (screenY - mouseCanvasY) ** 2;
         const connectionRadiusSquared = 150 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
           const mouseDistance = Math.sqrt(mouseDistanceSquared); // Only calculate sqrt when needed
@@ -274,21 +276,21 @@ const ParticleSystem = () => {
           ctx.lineWidth = 1.5;
           ctx.beginPath();
           ctx.moveTo(screenX, screenY);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+          ctx.lineTo(mouseCanvasX, mouseCanvasY);
           ctx.stroke();
         }
       }
       
       // Connection lines for ambient particles
       if (particle.type === 'ambient') {
-        const mouseDistance = Math.sqrt((screenX - mouseRef.current.x) ** 2 + (screenY - mouseRef.current.y) ** 2);
+        const mouseDistance = Math.sqrt((screenX - mouseCanvasX) ** 2 + (screenY - mouseCanvasY) ** 2);
         if (mouseDistance < 100) {
           const connectionAlpha = (100 - mouseDistance) / 100 * 0.3;
           ctx.strokeStyle = `rgba(139, 92, 246, ${connectionAlpha})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(screenX, screenY);
-          ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
+          ctx.lineTo(mouseCanvasX, mouseCanvasY);
           ctx.stroke();
         }
       }
@@ -306,18 +308,16 @@ const ParticleSystem = () => {
     if (!canvas) return;
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const parent = canvas.parentElement;
+      const width = window.innerWidth;
+      const height = Math.ceil(parent?.scrollHeight ?? window.innerHeight);
+
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
-      
-      const now = Date.now();
-      if (now - lastParticleTime.current > 50) { // Match main page frequency
-        particlesRef.current.push(createParticle(e.clientX + window.scrollX, e.clientY + window.scrollY, 'mouse'));
-        lastParticleTime.current = now;
-      }
     };
 
     const handleClick = (e: MouseEvent) => {
@@ -372,6 +372,9 @@ const ParticleSystem = () => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('click', handleClick);
     window.addEventListener('resize', handleResize);
+
+    const resizeObserver = new ResizeObserver(resizeCanvas);
+    if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
     
     const ambientInterval = setInterval(() => {
       if (particlesRef.current.length < 35) { // Increased from 25
@@ -389,6 +392,7 @@ const ParticleSystem = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('click', handleClick);
       window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       clearInterval(ambientInterval);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -416,7 +420,7 @@ const ParticleSystem = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="absolute top-0 left-1/2 w-screen h-full -translate-x-1/2 pointer-events-none z-0"
       style={{ background: 'transparent' }}
     />
   );
@@ -484,67 +488,16 @@ const ScrollTriggeredSection = ({ children, className = "", animationType = "sli
 };
 
 export default function Projects() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [smoothMousePosition, setSmoothMousePosition] = useState({ x: 0, y: 0 });
-  const animationFrameRef = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Smooth mouse follower
-  useEffect(() => {
-    const smoothFollow = () => {
-      setSmoothMousePosition(prev => {
-        const lerp = 0.15;
-        return {
-          x: prev.x + (mousePosition.x - prev.x) * lerp,
-          y: prev.y + (mousePosition.y - prev.y) * lerp
-        };
-      });
-      animationFrameRef.current = requestAnimationFrame(smoothFollow);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(smoothFollow);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [mousePosition]);
-
   return (
     <div className="relative min-h-screen overflow-visible">
-      {/* Mouse follower */}
-      <div
-        className="hidden md:block fixed pointer-events-none z-50"
-        style={{
-          left: smoothMousePosition.x - 12,
-          top: smoothMousePosition.y - 12,
-          transform: 'translate(0, 0)'
-        }}
-      >
-        <div className="absolute inset-0 w-6 h-6 bg-gradient-to-r from-blue-400/30 to-purple-400/30 rounded-full blur-sm animate-pulse"></div>
-        <div className="relative w-6 h-6 bg-gradient-to-br from-blue-500/80 to-purple-600/80 rounded-full border border-white/20 shadow-lg backdrop-blur-sm">
-          <div className="absolute top-0.5 left-0.5 w-2 h-2 bg-white/60 rounded-full blur-[1px]"></div>
-          <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-blue-300/80 rounded-full animate-ping"></div>
-        </div>
-      </div>
-
       <div className="relative z-10 w-full px-4 sm:px-8 py-4 sm:py-6">
         {/* Header Section */}
         <ScrollTriggeredSection animationType="slideUp" className="mb-16 px-2 sm:px-4">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold leading-[1.2] pb-1 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent select-none">
+            <h1 className="artistic-display text-4xl md:text-5xl leading-[1.2] pb-1 mb-6 select-none">
               My Projects
             </h1>
-            <p className="text-lg md:text-xl text-slate-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="organic-copy text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed">
               A collection of projects I've built, from responsive web applications to practical automation systems, each focused on performance, usability, and solving real-world challenges.
             </p>
           </div>
@@ -574,7 +527,7 @@ export default function Projects() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
                         <Code2 className="text-blue-500 dark:text-blue-400" size={24} />
-                        <h2 className="text-2xl font-bold text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                        <h2 className="organic-heading text-2xl group-hover:text-[#695ca7] dark:group-hover:text-[#c9c0ff] transition-colors duration-300">
                           {project.title}
                         </h2>
                         <ExternalLink className="text-slate-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-300" size={20} />
@@ -603,7 +556,7 @@ export default function Projects() {
         {/* Call to Action */}
         <ScrollTriggeredSection animationType="slideUp" className="mt-20 text-center px-4">
           <div className="bg-gradient-to-r from-blue-200/50 to-purple-200/50 dark:from-blue-600/30 dark:to-purple-600/30 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-blue-200/60 dark:border-white/10 hover:border-blue-300/80 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20">
-            <h3 className="text-xl md:text-2xl font-semibold mb-4 text-slate-800 dark:text-white">
+            <h3 className="organic-heading text-xl md:text-2xl mb-4">
               Interested in collaborating?
             </h3>
             <p className="text-slate-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
@@ -611,7 +564,7 @@ export default function Projects() {
             </p>
             <a
               href={`mailto:${socialLinks.email}`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-500 hover:to-purple-500 transition-all duration-300 hover:scale-105 hover:shadow-xl font-medium"
+              className="glass-button glass-button-amethyst inline-flex items-center gap-2 px-6 py-3 font-medium"
             >
               Get in Touch
               <ExternalLink size={16} />

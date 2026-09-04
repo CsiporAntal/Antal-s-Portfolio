@@ -49,7 +49,6 @@ const ParticleSystem = () => {
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
   const animationRef = useRef<number | undefined>(undefined);
-  const lastParticleTime = useRef(0);
   const lastScrollY = useRef(0);
   const profilePictureRef = useRef({ x: 0, y: 0, radius: 100 });
   const lastIslandParticleTime = useRef(0);
@@ -383,8 +382,9 @@ const ParticleSystem = () => {
     const now = performance.now();
     const w = canvas.width;
     const h = canvas.height;
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+    const canvasRect = canvas.getBoundingClientRect();
+    const canvasOriginX = canvasRect.left + window.scrollX;
+    const canvasOriginY = canvasRect.top + window.scrollY;
 
     // Ensure proper rendering properties
     ctx.globalCompositeOperation = 'source-over';
@@ -397,9 +397,10 @@ const ParticleSystem = () => {
       const alpha = particle.life / particle.maxLife;
       const size = particle.size * alpha;
       
-      // Adjust particle position for scroll offset
-      const screenX = particle.x - scrollX;
-      const screenY = particle.y - scrollY;
+      // Draw in page-relative canvas coordinates. The absolute canvas scrolls
+      // with the document, preventing a one-frame snap after browser scrolling.
+      const screenX = particle.x - canvasOriginX;
+      const screenY = particle.y - canvasOriginY;
       
       // Only draw particles that are visible on screen
       if (screenX < -50 || screenX > w + 50 || screenY < -50 || screenY > h + 50) {
@@ -452,8 +453,8 @@ const ParticleSystem = () => {
         ctx.stroke();
 
         // Draw connection to mouse if close
-        const mouseScreenX = mouseRef.current.x;
-        const mouseScreenY = mouseRef.current.y;
+        const mouseScreenX = mouseRef.current.x + window.scrollX - canvasOriginX;
+        const mouseScreenY = mouseRef.current.y + window.scrollY - canvasOriginY;
         const mouseDistanceSquared = (screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2;
         const connectionRadiusSquared = 120 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
@@ -480,8 +481,8 @@ const ParticleSystem = () => {
         ctx.stroke();
 
         // Always draw connection to mouse
-        const mouseScreenX = mouseRef.current.x;
-        const mouseScreenY = mouseRef.current.y;
+        const mouseScreenX = mouseRef.current.x + window.scrollX - canvasOriginX;
+        const mouseScreenY = mouseRef.current.y + window.scrollY - canvasOriginY;
         const mouseDistanceSquared = (screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2;
         const connectionRadiusSquared = 150 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
@@ -508,8 +509,8 @@ const ParticleSystem = () => {
         ctx.stroke();
 
         // Draw connection to mouse when close
-        const mouseScreenX = mouseRef.current.x;
-        const mouseScreenY = mouseRef.current.y;
+        const mouseScreenX = mouseRef.current.x + window.scrollX - canvasOriginX;
+        const mouseScreenY = mouseRef.current.y + window.scrollY - canvasOriginY;
         const mouseDistanceSquared = (screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2;
         const connectionRadiusSquared = 200 ** 2;
         if (mouseDistanceSquared < connectionRadiusSquared) {
@@ -536,8 +537,8 @@ const ParticleSystem = () => {
         ctx.stroke();
 
         // Draw connection to mouse if close
-        const mouseScreenX = mouseRef.current.x;
-        const mouseScreenY = mouseRef.current.y;
+        const mouseScreenX = mouseRef.current.x + window.scrollX - canvasOriginX;
+        const mouseScreenY = mouseRef.current.y + window.scrollY - canvasOriginY;
         const mouseDistanceSquared = (screenX - mouseScreenX) ** 2 + (screenY - mouseScreenY) ** 2;
         const connectionRadiusSquared = 300 ** 2; // Increased from 250 to match attraction radius
         if (mouseDistanceSquared < connectionRadiusSquared) {
@@ -561,10 +562,10 @@ const ParticleSystem = () => {
         const p2 = particlesRef.current[j];
         
         // Convert to screen coordinates
-        const p1ScreenX = p1.x - scrollX;
-        const p1ScreenY = p1.y - scrollY;
-        const p2ScreenX = p2.x - scrollX;
-        const p2ScreenY = p2.y - scrollY;
+        const p1ScreenX = p1.x - canvasOriginX;
+        const p1ScreenY = p1.y - canvasOriginY;
+        const p2ScreenX = p2.x - canvasOriginX;
+        const p2ScreenY = p2.y - canvasOriginY;
         
         // Skip if either particle is off-screen
         if (p1ScreenX < -50 || p1ScreenX > w + 50 || p1ScreenY < -50 || p1ScreenY > h + 50 ||
@@ -606,24 +607,17 @@ const ParticleSystem = () => {
     if (!canvas) return;
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const parent = canvas.parentElement;
+      const width = window.innerWidth;
+      const height = Math.ceil(parent?.scrollHeight ?? window.innerHeight);
+
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       // Store mouse position in screen coordinates for drawing connections
       mouseRef.current = { x: e.clientX, y: e.clientY };
-      
-      // Create particles on mouse movement (throttled and limited)
-      const now = Date.now();
-      if (now - lastParticleTime.current > 50) {
-        // Check if we can create mouse particles (limit to 20 active mouse particles)
-        if (getParticleCount('mouse') < 20) {
-          // Create particles in world coordinates
-          particlesRef.current.push(createParticle(e.clientX + window.scrollX, e.clientY + window.scrollY, 'mouse'));
-          lastParticleTime.current = now;
-        }
-      }
     };
 
     const handleClick = (e: MouseEvent) => {
@@ -696,8 +690,8 @@ const ParticleSystem = () => {
       // Limit ambient particles to prevent too many
       if (getParticleCount('ambient') < 15 && particlesRef.current.length < 100) {
         particlesRef.current.push(createParticle(
-          Math.random() * window.innerWidth,
-          Math.random() * window.innerHeight,
+          window.scrollX + Math.random() * window.innerWidth,
+          window.scrollY + Math.random() * window.innerHeight,
           'ambient'
         ));
       }
@@ -714,6 +708,9 @@ const ParticleSystem = () => {
     window.addEventListener('click', handleClick);
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize);
+
+    const resizeObserver = new ResizeObserver(resizeCanvas);
+    if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
     
     // Add ambient particles more frequently
     const ambientInterval = setInterval(addAmbientParticles, 800);
@@ -771,6 +768,7 @@ const ParticleSystem = () => {
       window.removeEventListener('click', handleClick);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       clearInterval(ambientInterval);
       clearInterval(islandInterval);
       if (animationRef.current) {
@@ -857,7 +855,7 @@ const ParticleSystem = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-10"
+      className="absolute top-0 left-1/2 w-screen h-full -translate-x-1/2 pointer-events-none z-10"
       style={{ background: 'transparent' }}
     />
   );
@@ -950,61 +948,20 @@ const ScrollTriggeredSection = ({ children, className = "", animationType = "sli
   );
 };
 
-const SkillBadge = ({ skill, delay = 0 }) => (
-    <div
-        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-500/20 dark:to-blue-500/20 border border-purple-200/60 dark:border-purple-400/40 rounded-full text-sm hover:scale-110 transition-all duration-300 hover:shadow-lg hover:border-purple-300/80 dark:hover:border-purple-400/60 text-slate-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-purple-200/60 hover:to-blue-200/60 dark:hover:from-purple-500/30 dark:hover:to-blue-500/30 cursor-pointer group"
-        style={{ animationDelay: `${delay}ms` }}
-    >
-      <skill.icon size={16} className="text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform duration-300" />
-      <span className="font-medium">{skill.name}</span>
-    </div>
-);
-
 export default function EnhancedPortfolio() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [smoothMousePosition, setSmoothMousePosition] = useState({ x: 0, y: 0 });
   const [showScrollIndicator, setShowScrollIndicator] = useState(true);
-  const animationFrameRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
     const handleScroll = () => {
       setShowScrollIndicator(window.scrollY < 100);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
-  // Smooth mouse follower with consistent responsiveness
-  useEffect(() => {
-    const smoothFollow = () => {
-      setSmoothMousePosition(prev => {
-        const lerp = 0.15; // Consistent smoothing factor
-        return {
-          x: prev.x + (mousePosition.x - prev.x) * lerp,
-          y: prev.y + (mousePosition.y - prev.y) * lerp
-        };
-      });
-      animationFrameRef.current = requestAnimationFrame(smoothFollow);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(smoothFollow);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [mousePosition]);
 
   const skills = [
     { name: 'PLC Programming', icon: Cpu },
@@ -1015,8 +972,62 @@ export default function EnhancedPortfolio() {
     { name: 'Next.js', icon: Globe }
   ];
 
+  const workItems = [
+    {
+      role: 'PLC Programmer',
+      company: 'Aages S.A.',
+      period: 'Full-time • 2023 - Now',
+      description: 'Developing and maintaining industrial automation systems, programming PLCs, and ensuring optimal performance of manufacturing processes.',
+      icon: Cog,
+    },
+    {
+      role: 'Event Manager',
+      company: 'Moments & More S.R.L.',
+      period: 'Part-time • 2025 - Now',
+      description: 'Organizing and managing festivals and events while also handling technical execution, including event websites, online registration flows, digital promotion assets, and on-site systems needed to deliver smooth attendee experiences.',
+      icon: Calendar,
+    },
+    {
+      role: 'CEO / Administrator',
+      company: 'Antratech S.R.L.',
+      period: '2025 - Now',
+      description: 'Leading company operations, strategy, client relationships, and the delivery of software development projects.',
+      icon: Briefcase,
+    },
+  ];
+
+  const educationItems = [
+    {
+      title: 'Computer Engineering',
+      institution: 'Sapientia University',
+      location: 'Târgu Mureș, Romania',
+      description: 'Developed a strong foundation in both software and hardware automation, preparing me for the intersection of industrial systems and modern technology.',
+      icon: Monitor,
+    },
+    {
+      title: 'Electrical Engineering Studies',
+      institution: 'Electromaros Liceum',
+      location: 'Târgu Mureș, Romania',
+      description: 'Studied electrical circuits, electronics, and electrical engineering principles, providing a solid foundation in electrical systems and circuit design.',
+      icon: Settings,
+    },
+  ];
+
+  const aboutParagraphs = [
+    "I'm passionate about bridging the gap between industrial automation and modern web technologies. I bring structure and logic to everything I build, from control systems to responsive web interfaces.",
+    "When I'm not coding, you'll find me exploring new technologies, contributing to personal projects, or diving deep into the latest automation innovations.",
+  ];
+
   return (
       <div className="relative min-h-screen overflow-visible">
+        <div className="home-edge-bubbles" aria-hidden="true">
+          <span className="home-edge-bubble home-edge-bubble-1" />
+          <span className="home-edge-bubble home-edge-bubble-2" />
+          <span className="home-edge-bubble home-edge-bubble-3" />
+          <span className="home-edge-bubble home-edge-bubble-4" />
+          <span className="home-edge-bubble home-edge-bubble-5" />
+          <span className="home-edge-bubble home-edge-bubble-6" />
+        </div>
         {/* Custom CSS for fantasy wiggly circle animation */}
         <style jsx>{`
           @keyframes purple-wiggle {
@@ -1119,28 +1130,6 @@ export default function EnhancedPortfolio() {
           }
         `}</style>
 
-        {/* Cursor follower - enhanced styling */}
-        <div
-            className="hidden md:block fixed pointer-events-none z-50"
-            style={{
-              left: smoothMousePosition.x - 12,
-              top: smoothMousePosition.y - 12,
-              transform: 'translate(0, 0)'
-            }}
-        >
-          {/* Outer glow ring */}
-          <div className="absolute inset-0 w-6 h-6 bg-gradient-to-r from-blue-400/30 to-purple-400/30 rounded-full blur-sm animate-pulse"></div>
-          
-          {/* Main dot with gradient */}
-          <div className="relative w-6 h-6 bg-gradient-to-br from-blue-500/80 to-purple-600/80 rounded-full border border-white/20 shadow-lg backdrop-blur-sm">
-            {/* Inner highlight */}
-            <div className="absolute top-0.5 left-0.5 w-2 h-2 bg-white/60 rounded-full blur-[1px]"></div>
-            
-            {/* Sparkle effect */}
-            <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-blue-300/80 rounded-full animate-ping"></div>
-          </div>
-        </div>
-
         <div className="relative z-15 w-full px-2 sm:px-8 py-3 sm:py-6">
           {/* Hero Section */}
           <AnimatedSection className="text-center mb-16 mt-2">
@@ -1171,7 +1160,7 @@ export default function EnhancedPortfolio() {
 
             <div className="mt-8">
               <h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.2] pb-1 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition-all duration-300 hover:scale-105 select-none"
+                className="artistic-display text-4xl md:text-5xl lg:text-6xl leading-[1.2] pb-1 mb-6 select-none"
               >
                 Hi, I'm {metaData.title.replace("'s Portfolio", "")}
                 <span 
@@ -1187,7 +1176,7 @@ export default function EnhancedPortfolio() {
                 </span>
               </h1>
 
-              <p className="text-lg md:text-xl text-slate-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+              <p className="organic-copy text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed">
                 {metaData.description}
             </p>
 
@@ -1196,14 +1185,14 @@ export default function EnhancedPortfolio() {
                   href={socialLinks.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-200/80 to-slate-300/80 dark:from-gray-800 dark:to-gray-700 text-slate-800 dark:text-white rounded-lg hover:from-slate-300/90 hover:to-slate-400/90 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm"
+                    className="glass-button flex items-center justify-center gap-2 px-6 py-3 font-medium"
               >
                 <Github size={20} />
                 GitHub
               </a>
               <a
                   href={`mailto:${socialLinks.email}`}
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-500 hover:to-purple-500 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                    className="glass-button glass-button-amethyst flex items-center justify-center gap-2 px-6 py-3 font-medium"
               >
                 <Mail size={20} />
                 Get in Touch
@@ -1211,7 +1200,7 @@ export default function EnhancedPortfolio() {
               <a
                   href="/Csipor_Antal_CV.pdf"
                   download
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                  className="glass-button glass-button-sage flex items-center justify-center gap-2 px-6 py-3 font-medium"
               >
                 <Download size={20} />
                 Download Resume
@@ -1227,6 +1216,14 @@ export default function EnhancedPortfolio() {
               </div>
           )}
 
+          <div className="variant-choice-heading">
+            <span className="variant-choice-number">01</span>
+            <div>
+              <p className="variant-choice-name">Original</p>
+              <h2 className="organic-heading text-xl md:text-2xl">Original layout</h2>
+            </div>
+          </div>
+
           {/* About Section */}
           <ScrollTriggeredSection animationType="slideUp" className="mb-10 sm:mb-20 px-1 sm:px-4">
             <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-blue-200/50 dark:border-white/10 hover:border-blue-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20"
@@ -1238,7 +1235,7 @@ export default function EnhancedPortfolio() {
             >
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <Code className="text-blue-500 dark:text-blue-400 sm:w-7 sm:h-7" size={24} />
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">About Me</h2>
+                <h2 className="organic-heading text-2xl md:text-3xl">About Me</h2>
               </div>
               <div className="relative">
                 <div className="absolute left-3 sm:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-400 to-transparent"></div>
@@ -1254,19 +1251,19 @@ export default function EnhancedPortfolio() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3 p-2 sm:p-4 bg-purple-100/40 dark:bg-purple-500/20 rounded-lg hover:bg-purple-200/50 dark:hover:bg-purple-500/30 transition-colors duration-300">
-                        <Briefcase className="text-purple-500 dark:text-purple-400 mt-1 flex-shrink-0 sm:w-5 sm:h-5" size={18} />
+                      <div className="flex items-start gap-3 p-2 sm:p-4 bg-sky-100/55 dark:bg-sky-400/15 rounded-xl hover:bg-sky-200/60 dark:hover:bg-sky-400/22 transition-colors duration-300">
+                        <Briefcase className="text-sky-500 dark:text-sky-300 mt-1 flex-shrink-0 sm:w-5 sm:h-5" size={18} />
                         <div>
                           <p className="text-slate-600 dark:text-gray-300">
-                            Full-time PLC Programmer at <span className="text-red-600 dark:text-red-400 font-semibold">Aages S.A.</span>
+                            Full-time PLC Programmer at <span className="text-sky-700 dark:text-sky-300 font-semibold">Aages S.A.</span>
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3 p-2 sm:p-4 bg-green-100/50 dark:bg-green-500/20 rounded-lg hover:bg-green-200/60 dark:hover:bg-green-500/30 transition-colors duration-300">
-                        <Calendar className="text-green-600 dark:text-green-400 mt-1 flex-shrink-0 sm:w-5 sm:h-5" size={18} />
+                      <div className="flex items-start gap-3 p-2 sm:p-4 bg-cyan-50/70 dark:bg-cyan-300/10 rounded-xl hover:bg-cyan-100/75 dark:hover:bg-cyan-300/16 transition-colors duration-300">
+                        <Calendar className="text-cyan-500 dark:text-cyan-200 mt-1 flex-shrink-0 sm:w-5 sm:h-5" size={18} />
                         <div>
                           <p className="text-slate-600 dark:text-gray-300">
-                            Part-time Event Organizer at <span className="text-green-700 dark:text-green-400 font-semibold">MOMENTS & MORE S.R.L.</span>
+                            Part-time Event Organizer at <span className="text-cyan-700 dark:text-cyan-200 font-semibold">Moments &amp; More S.R.L.</span>
                           </p>
                         </div>
                       </div>
@@ -1292,7 +1289,7 @@ export default function EnhancedPortfolio() {
             <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-red-200/50 dark:border-white/10 hover:border-red-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-red-500/10 dark:hover:shadow-red-500/20">
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <Briefcase className="text-red-500 dark:text-red-400 sm:w-7 sm:h-7" size={24} />
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">Work Experience</h2>
+                <h2 className="organic-heading text-2xl md:text-3xl">Work Experience</h2>
               </div>
               <div className="space-y-6">
                 <div className="relative">
@@ -1321,7 +1318,7 @@ export default function EnhancedPortfolio() {
                         <Calendar className="text-orange-500 dark:text-orange-400" size={20} />
                         <h3 className="text-xl font-semibold leading-[1.25] pb-0.5 text-orange-600 dark:text-orange-400">Event Manager</h3>
                       </div>
-                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">MOMENTS & MORE S.R.L.</p>
+                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">Moments &amp; More S.R.L.</p>
                       <p className="text-slate-600 dark:text-gray-300 mb-3">Part-time • 2025 - Now</p>
                       <p className="text-slate-500 dark:text-gray-400">
                         Organizing and managing festivals and events while also handling technical execution,
@@ -1335,14 +1332,13 @@ export default function EnhancedPortfolio() {
                     <div className="absolute left-[-17px] sm:left-[-41px] top-2 w-2 h-2 sm:w-3 sm:h-3 bg-amber-400 rounded-full animate-pulse"></div>
                     <div className="bg-amber-100/40 dark:bg-amber-500/20 p-2 sm:p-6 rounded-lg hover:bg-amber-200/50 dark:hover:bg-amber-500/30 transition-all duration-300 hover:scale-[1.02]">
                       <div className="flex items-center gap-3 mb-3">
-                        <Globe className="text-amber-500 dark:text-amber-400" size={20} />
-                        <h3 className="text-xl font-semibold leading-[1.25] pb-0.5 text-amber-600 dark:text-amber-400">Web Developer</h3>
+                        <Briefcase className="text-amber-500 dark:text-amber-400" size={20} />
+                        <h3 className="text-xl font-semibold leading-[1.25] pb-0.5 text-amber-600 dark:text-amber-400">CEO / Administrator</h3>
                       </div>
-                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">Freelance</p>
-                      <p className="text-slate-600 dark:text-gray-300 mb-3">Part-time • 2024 - Now</p>
+                      <p className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-2">Antratech S.R.L.</p>
+                      <p className="text-slate-600 dark:text-gray-300 mb-3">2025 - Now</p>
                       <p className="text-slate-500 dark:text-gray-400">
-                        Building clean and functional websites with modern technologies,
-                        focusing on responsive design and optimal user experiences.
+                        Leading company operations, strategy, client relationships, and the delivery of software development projects.
                       </p>
                     </div>
                   </div>
@@ -1356,7 +1352,7 @@ export default function EnhancedPortfolio() {
             <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-green-200/50 dark:border-white/10 hover:border-green-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/10 dark:hover:shadow-green-500/20">
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <GraduationCap className="text-green-500 dark:text-green-400 sm:w-7 sm:h-7" size={24} />
-                <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">Education</h2>
+                <h2 className="organic-heading text-2xl md:text-3xl">Education</h2>
               </div>
               <div className="space-y-6">
                 <div className="relative">
@@ -1399,22 +1395,141 @@ export default function EnhancedPortfolio() {
           </ScrollTriggeredSection>
 
           {/* Skills Section */}
-          <ScrollTriggeredSection animationType="dive" className="mb-10 sm:mb-20 px-1 sm:px-4">
-            <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-purple-200/50 dark:border-white/10 hover:border-purple-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 group">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center text-slate-800 dark:text-white group-hover:scale-105 transition-transform duration-300">Skills & Technologies</h2>
-              <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+          <ScrollTriggeredSection animationType="slideRight" className="mb-10 sm:mb-20 px-1 sm:px-4">
+            <div className="organic-glass-panel p-4 sm:p-6 md:p-8">
+              <div className="text-center">
+                <h2 className="organic-heading text-2xl md:text-3xl mb-6">Skills & Technologies</h2>
+              </div>
+              <div className="skill-ribbon-list">
                 {skills.map((skill, index) => (
-                    <SkillBadge key={skill.name} skill={skill} delay={index * 100} />
+                  <div className="skill-ribbon" key={skill.name}>
+                    <span className="skill-ribbon-number">0{index + 1}</span>
+                    <span className="font-semibold">{skill.name}</span>
+                    <skill.icon size={18} />
+                  </div>
                 ))}
               </div>
             </div>
           </ScrollTriggeredSection>
 
+          <div className="space-y-14 sm:space-y-20 mb-10 sm:mb-20 px-1 sm:px-4">
+            {/* Technical Ledger Variant 1 */}
+            <ScrollTriggeredSection animationType="slideRight">
+              <div className="variant-choice-heading !mx-0">
+                <span className="variant-choice-number">02</span>
+                <div><p className="variant-choice-name">Ledger variant 1</p><h2 className="organic-heading text-xl md:text-2xl">Classic ledger</h2></div>
+              </div>
+              <section className="profile-variant rounded-xl p-4 sm:p-7 md:p-9 border-l-4 !border-l-indigo-400/50">
+                <div className="grid lg:grid-cols-[.75fr_1.25fr] gap-6 lg:gap-10 pb-8 border-b border-indigo-900/10 dark:border-indigo-100/10">
+                  <div>
+                    <p className="variant-kicker mb-2">01 / Introduction</p>
+                    <h2 className="organic-heading text-3xl mb-5">About Me</h2>
+                    <div className="space-y-3 text-sm">
+                      <p className="organic-copy"><MapPin className="inline mr-2 text-blue-500" size={16} />Based in <strong>Mureș, Romania</strong></p>
+                      <p className="organic-copy"><Cog className="inline mr-2 text-sky-500" size={16} />Full-time PLC Programmer at <strong>Aages S.A.</strong></p>
+                      <p className="organic-copy"><Calendar className="inline mr-2 text-cyan-500" size={16} />Part-time Event Organizer at <strong>Moments &amp; More S.R.L.</strong></p>
+                    </div>
+                  </div>
+                  <div className="organic-copy space-y-4 leading-relaxed lg:pt-7">
+                    {aboutParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                  </div>
+                </div>
+
+                <div className="py-8 border-b border-indigo-900/10 dark:border-indigo-100/10">
+                  <p className="variant-kicker mb-2">02 / Practice</p>
+                  <h2 className="organic-heading text-2xl md:text-3xl mb-4">Work Experience</h2>
+                  {workItems.map((item) => (
+                    <article className="ledger-row" key={item.role}>
+                      <div><h3 className="font-semibold text-slate-800 dark:text-white">{item.role}</h3><p className="text-sm text-indigo-600 dark:text-indigo-300">{item.period}</p></div>
+                      <p className="font-semibold text-slate-700 dark:text-slate-200">{item.company}</p>
+                      <p className="organic-copy text-sm leading-relaxed">{item.description}</p>
+                    </article>
+                  ))}
+                </div>
+
+                <div className="grid lg:grid-cols-2 gap-8 pt-8">
+                  <div>
+                    <p className="variant-kicker mb-2">03 / Education</p>
+                    <h2 className="organic-heading text-2xl mb-4">Education</h2>
+                    <div className="space-y-5">{educationItems.map((item) => <article key={item.title}><h3 className="font-semibold text-slate-800 dark:text-white">{item.title}</h3><p className="text-sm text-indigo-600 dark:text-indigo-300">{item.institution} · {item.location}</p><p className="organic-copy text-sm mt-1 leading-relaxed">{item.description}</p></article>)}</div>
+                  </div>
+                  <div>
+                    <p className="variant-kicker mb-2">04 / Capabilities</p>
+                    <h2 className="organic-heading text-2xl mb-4">Skills & Technologies</h2>
+                    <div className="grid sm:grid-cols-2 gap-x-5 gap-y-3">{skills.map((skill, index) => <div className="flex items-center justify-between border-b border-indigo-900/10 dark:border-indigo-100/10 pb-2" key={skill.name}><span className="organic-copy font-semibold text-sm">{skill.name}</span><span className="text-xs font-serif italic text-indigo-500">0{index + 1}</span></div>)}</div>
+                  </div>
+                </div>
+              </section>
+            </ScrollTriggeredSection>
+
+            {/* Technical Ledger Variant 2 */}
+            <ScrollTriggeredSection animationType="slideLeft">
+              <div className="variant-choice-heading !mx-0">
+                <span className="variant-choice-number">03</span>
+                <div><p className="variant-choice-name">Ledger variant 2</p><h2 className="organic-heading text-xl md:text-2xl">Split-index ledger</h2></div>
+              </div>
+              <section className="profile-variant rounded-[1.8rem_.5rem_1.8rem_.5rem] overflow-hidden">
+                <div className="grid lg:grid-cols-[15rem_1fr]">
+                  <aside className="p-5 sm:p-7 bg-indigo-100/35 dark:bg-indigo-400/[.06] border-b lg:border-b-0 lg:border-r border-indigo-900/10 dark:border-indigo-100/10">
+                    <p className="variant-kicker mb-3">Index / 01</p>
+                    <h2 className="organic-heading text-3xl mb-5">About Me</h2>
+                    <div className="space-y-4 text-sm">
+                      <p className="organic-copy"><MapPin className="mb-1 text-blue-500" size={17} /><strong>Mureș, Romania</strong></p>
+                      <p className="organic-copy"><Cog className="mb-1 text-sky-500" size={17} />PLC Programmer<br/><strong>Aages S.A.</strong></p>
+                      <p className="organic-copy"><Calendar className="mb-1 text-cyan-500" size={17} />Event Organizer<br/><strong>Moments &amp; More S.R.L.</strong></p>
+                    </div>
+                  </aside>
+                  <div className="p-5 sm:p-7 md:p-9">
+                    <div className="organic-copy space-y-3 leading-relaxed pb-7 border-b border-indigo-900/10 dark:border-indigo-100/10">{aboutParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
+                    <div className="py-7 border-b border-indigo-900/10 dark:border-indigo-100/10">
+                      <div className="flex items-end justify-between gap-4 mb-4"><div><p className="variant-kicker">Index / 02</p><h2 className="organic-heading text-2xl">Work Experience</h2></div><Briefcase className="text-indigo-500/60" size={22}/></div>
+                      <div className="space-y-1">{workItems.map((item, index) => <article className="grid sm:grid-cols-[2.5rem_1fr] gap-3 py-4 border-t border-indigo-900/10 dark:border-indigo-100/10 first:border-0" key={item.role}><span className="font-serif italic text-indigo-500">0{index + 1}</span><div><div className="flex flex-wrap justify-between gap-2"><h3 className="font-semibold text-slate-800 dark:text-white">{item.role} · {item.company}</h3><span className="text-xs text-indigo-600 dark:text-indigo-300">{item.period}</span></div><p className="organic-copy text-sm mt-2 leading-relaxed">{item.description}</p></div></article>)}</div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-7 pt-7">
+                      <div><p className="variant-kicker mb-1">Index / 03</p><h2 className="organic-heading text-xl mb-3">Education</h2><div className="space-y-4">{educationItems.map((item) => <article key={item.title}><h3 className="font-semibold text-slate-800 dark:text-white">{item.title}</h3><p className="text-xs text-emerald-700 dark:text-emerald-300">{item.institution} · {item.location}</p><p className="organic-copy text-xs mt-1 leading-relaxed">{item.description}</p></article>)}</div></div>
+                      <div><p className="variant-kicker mb-1">Index / 04</p><h2 className="organic-heading text-xl mb-3">Skills & Technologies</h2><div className="space-y-2">{skills.map((skill, index) => <div className="flex items-center gap-3 text-sm" key={skill.name}><span className="skill-ribbon-number">0{index + 1}</span><skill.icon className="text-indigo-500" size={15}/><span className="organic-copy font-semibold">{skill.name}</span></div>)}</div></div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </ScrollTriggeredSection>
+
+            {/* Technical Ledger Variant 3 */}
+            <ScrollTriggeredSection animationType="float">
+              <div className="variant-choice-heading !mx-0">
+                <span className="variant-choice-number">04</span>
+                <div><p className="variant-choice-name">Ledger variant 3</p><h2 className="organic-heading text-xl md:text-2xl">Blueprint ledger</h2></div>
+              </div>
+              <section className="profile-variant rounded-none border-y-4 !border-y-sky-500/30 p-4 sm:p-7 md:p-9">
+                <header className="grid lg:grid-cols-[1fr_auto] gap-6 pb-7 border-b-2 border-sky-700/15 dark:border-sky-200/10">
+                  <div><p className="variant-kicker mb-2">Record 01 — Personal profile</p><h2 className="organic-heading text-3xl md:text-4xl mb-4">About Me</h2><div className="organic-copy space-y-3 max-w-3xl leading-relaxed">{aboutParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></div>
+                  <div className="grid grid-cols-1 gap-2 text-xs min-w-60">
+                    <p className="border border-sky-700/15 dark:border-sky-200/10 p-3 organic-copy"><span className="variant-kicker block mb-1">Base</span>Mureș, Romania</p>
+                    <p className="border border-sky-700/15 dark:border-sky-200/10 p-3 organic-copy"><span className="variant-kicker block mb-1">Primary role</span>PLC Programmer · Aages S.A.</p>
+                    <p className="border border-sky-700/15 dark:border-sky-200/10 p-3 organic-copy"><span className="variant-kicker block mb-1">Parallel role</span>Event Organizer · Moments &amp; More</p>
+                  </div>
+                </header>
+
+                <div className="py-7 border-b-2 border-sky-700/15 dark:border-sky-200/10">
+                  <div className="flex items-center gap-3 mb-5"><span className="font-mono text-sm text-sky-700 dark:text-sky-300">02</span><h2 className="organic-heading text-2xl md:text-3xl">Work Experience</h2></div>
+                  <div className="grid lg:grid-cols-3 gap-px bg-sky-700/15 dark:bg-sky-200/10 border border-sky-700/15 dark:border-sky-200/10">
+                    {workItems.map((item, index) => <article className="bg-slate-50/50 dark:bg-slate-900/45 p-5" key={item.role}><div className="flex justify-between mb-5"><item.icon className="text-sky-600 dark:text-sky-300" size={19}/><span className="font-mono text-xs text-sky-700/60 dark:text-sky-300/60">W-0{index + 1}</span></div><h3 className="font-semibold text-slate-800 dark:text-white">{item.role}</h3><p className="text-sm font-semibold text-sky-700 dark:text-sky-300">{item.company}</p><p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">{item.period}</p><p className="organic-copy text-sm leading-relaxed">{item.description}</p></article>)}
+                  </div>
+                </div>
+
+                <div className="grid lg:grid-cols-[1.2fr_.8fr] gap-8 pt-7">
+                  <div><div className="flex items-center gap-3 mb-5"><span className="font-mono text-sm text-sky-700 dark:text-sky-300">03</span><h2 className="organic-heading text-2xl">Education</h2></div><div className="space-y-4">{educationItems.map((item, index) => <article className="grid sm:grid-cols-[3rem_1fr] gap-3 border-t border-sky-700/15 dark:border-sky-200/10 pt-4 first:border-0 first:pt-0" key={item.title}><span className="font-mono text-xs text-sky-700/60 dark:text-sky-300/60">E-0{index + 1}</span><div><h3 className="font-semibold text-slate-800 dark:text-white">{item.title}</h3><p className="text-sm text-emerald-700 dark:text-emerald-300">{item.institution} · {item.location}</p><p className="organic-copy text-sm mt-2 leading-relaxed">{item.description}</p></div></article>)}</div></div>
+                  <div><div className="flex items-center gap-3 mb-5"><span className="font-mono text-sm text-sky-700 dark:text-sky-300">04</span><h2 className="organic-heading text-2xl">Skills & Technologies</h2></div><div className="grid gap-px bg-sky-700/15 dark:bg-sky-200/10 border border-sky-700/15 dark:border-sky-200/10">{skills.map((skill, index) => <div className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-2 bg-slate-50/50 dark:bg-slate-900/45 p-3" key={skill.name}><span className="font-mono text-xs text-sky-700/60 dark:text-sky-300/60">0{index + 1}</span><span className="organic-copy font-semibold text-sm">{skill.name}</span><skill.icon className="text-sky-600 dark:text-sky-300" size={16}/></div>)}</div></div>
+                </div>
+              </section>
+            </ScrollTriggeredSection>
+          </div>
+
           {/* Footer */}
           <ScrollTriggeredSection animationType="float" className="text-center px-1 sm:px-4">
-            <div className="bg-gradient-to-r from-blue-200/50 to-purple-200/50 dark:from-blue-600/30 dark:to-purple-600/30 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-blue-200/60 dark:border-white/10 hover:border-blue-300/80 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20 group">
-              <h3 className="text-xl md:text-2xl font-semibold mb-4 text-slate-800 dark:text-white group-hover:scale-105 transition-transform duration-300">Let's Connect</h3>
-              <p className="text-slate-600 dark:text-gray-300 mb-6">
+            <div className="organic-glass-panel p-3 sm:p-6 md:p-8 group">
+              <h3 className="organic-heading text-xl md:text-2xl mb-4 group-hover:scale-105 transition-transform duration-300">Let's Connect</h3>
+              <p className="organic-copy mb-6">
                 Always open to discussing new opportunities, collaborations, or just having a chat about technology!
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
@@ -1422,18 +1537,18 @@ export default function EnhancedPortfolio() {
                     href={socialLinks.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group/link flex items-center justify-center gap-2 text-slate-600 dark:text-gray-300 hover:text-slate-800 dark:hover:text-white transition-all duration-300 hover:scale-110"
+                    className="glass-button group/link flex items-center justify-center gap-2 px-5 py-2.5 font-medium"
                 >
                   <Github className="group-hover/link:scale-125 transition-transform duration-300" size={24} />
-                  <span className="group-hover/link:underline font-medium">GitHub</span>
+                  <span>GitHub</span>
                   <ExternalLink size={16} className="opacity-50 group-hover/link:opacity-100 transition-opacity duration-300" />
                 </a>
                 <a
                     href={`mailto:${socialLinks.email}`}
-                    className="group/link flex items-center justify-center gap-2 text-slate-600 dark:text-gray-300 hover:text-slate-800 dark:hover:text-white transition-all duration-300 hover:scale-110"
+                    className="glass-button group/link flex items-center justify-center gap-2 px-5 py-2.5 font-medium"
                 >
                   <Mail className="group-hover/link:scale-125 transition-transform duration-300" size={24} />
-                  <span className="group-hover/link:underline font-medium">Email</span>
+                  <span>Email</span>
                   <ExternalLink size={16} className="opacity-50 group-hover/link:opacity-100 transition-opacity duration-300" />
                 </a>
               </div>

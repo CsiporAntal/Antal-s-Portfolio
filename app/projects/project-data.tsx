@@ -13,10 +13,10 @@ export const projects: Project[] = [
     url: "https://everness.ro/fesztival",
   },
   {
-    title: "Csipor Antal's Portfolio",
-    description: "My personal portfolio website, featuring interactive particle effects, responsive design, and modern web technologies.",
-    year: 2025,
-    url: "https://github.com/CsiporAntal/Antal-s-Portfolio?tab=readme-ov-file",
+    title: "BeliefScope.com",
+    description: "A self-discovery platform offering free, science-inspired tests on personality, politics, values, careers, relationships, mindset, and power, with instant results and personalized reports.",
+    year: 2026,
+    url: "https://beliefscope.com",
   },
   {
     title: "Modinvest.ro",

@@ -63,7 +63,7 @@ export function Navbar() {
               height={48} 
               className="bg-transparent object-contain" 
             />
-            <span className="bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text hover:text-transparent">{metaData.title}</span>
+            <span className="brand-wordmark">{metaData.title}</span>
           </Link>
         </div>
 
@@ -73,7 +73,7 @@ export function Navbar() {
             <Link
               key={path}
               href={path}
-              className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 text-slate-600 dark:text-gray-300 font-medium"
+              className="organic-nav-link flex items-center gap-2 font-medium"
             >
               <Icon size={18} />
               {name}
@@ -115,7 +115,7 @@ export function Navbar() {
                 key={path}
                 href={path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-700/50 text-slate-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+                className="organic-nav-link flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/30 dark:hover:bg-white/5 font-medium"
               >
                 <Icon size={18} />
                 {name}
