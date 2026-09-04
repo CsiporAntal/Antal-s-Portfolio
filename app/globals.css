@@ -485,6 +485,73 @@ table {
   border-top-color: rgba(205, 196, 246, 0.1);
 }
 
+.skills-ledger-grid {
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .skills-ledger-grid {
+    min-height: 13rem;
+  }
+
+  .skills-ledger-grid::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: rgba(94, 84, 143, 0.18);
+    transform: translateX(-50%);
+  }
+
+  .dark .skills-ledger-grid::before {
+    background: rgba(205, 196, 246, 0.14);
+  }
+}
+
+.company-link {
+  text-decoration-color: transparent;
+  text-underline-offset: 0.2em;
+  transition: color 220ms ease, text-decoration-color 220ms ease;
+}
+
+.company-link:hover,
+.company-link:focus-visible {
+  text-decoration-line: underline;
+  text-decoration-color: currentColor;
+}
+
+.company-link-aages:hover,
+.company-link-aages:focus-visible {
+  color: #dc2626;
+}
+
+.company-link-moments:hover,
+.company-link-moments:focus-visible {
+  color: #16a34a;
+}
+
+.company-link-antratech:hover,
+.company-link-antratech:focus-visible {
+  color: #ea580c;
+}
+
+.dark .company-link-aages:hover,
+.dark .company-link-aages:focus-visible {
+  color: #f87171;
+}
+
+.dark .company-link-moments:hover,
+.dark .company-link-moments:focus-visible {
+  color: #4ade80;
+}
+
+.dark .company-link-antratech:hover,
+.dark .company-link-antratech:focus-visible {
+  color: #fb923c;
+}
+
 @media (max-width: 767px) {
   .variant-choice-heading {
     margin-inline: 0.25rem;

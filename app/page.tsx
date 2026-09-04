@@ -974,25 +974,37 @@ export default function EnhancedPortfolio() {
 
   const workItems = [
     {
+      role: 'CEO / Administrator',
+      company: {
+        name: 'Antratech S.R.L.',
+        url: 'https://antratech.ro',
+        className: 'company-link company-link-antratech',
+      },
+      period: '2025 - Now',
+      description: 'Leading company operations, strategy, client relationships, and the delivery of software development projects.',
+      icon: Briefcase,
+    },
+    {
       role: 'PLC Programmer',
-      company: 'Aages S.A.',
+      company: {
+        name: 'Aages S.A.',
+        url: 'https://www.aages.ro',
+        className: 'company-link company-link-aages',
+      },
       period: 'Full-time • 2023 - Now',
       description: 'Developing and maintaining industrial automation systems, programming PLCs, and ensuring optimal performance of manufacturing processes.',
       icon: Cog,
     },
     {
       role: 'Event Manager',
-      company: 'Moments & More S.R.L.',
+      company: {
+        name: 'Moments & More S.R.L.',
+        url: 'https://momentsandmore.ro',
+        className: 'company-link company-link-moments',
+      },
       period: 'Part-time • 2025 - Now',
-      description: 'Organizing and managing festivals and events while also handling technical execution, including event websites, online registration flows, digital promotion assets, and on-site systems needed to deliver smooth attendee experiences.',
+      description: 'Organizing festivals and events while managing websites, registration flows, digital promotion, and on-site technical systems.',
       icon: Calendar,
-    },
-    {
-      role: 'CEO / Administrator',
-      company: 'Antratech S.R.L.',
-      period: '2025 - Now',
-      description: 'Leading company operations, strategy, client relationships, and the delivery of software development projects.',
-      icon: Briefcase,
     },
   ];
 
@@ -1216,7 +1228,7 @@ export default function EnhancedPortfolio() {
               </div>
           )}
 
-          <div className="variant-choice-heading">
+          <div className="hidden">
             <span className="variant-choice-number">01</span>
             <div>
               <p className="variant-choice-name">Original</p>
@@ -1225,7 +1237,7 @@ export default function EnhancedPortfolio() {
           </div>
 
           {/* About Section */}
-          <ScrollTriggeredSection animationType="slideUp" className="mb-10 sm:mb-20 px-1 sm:px-4">
+          <ScrollTriggeredSection animationType="slideUp" className="hidden">
             <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-blue-200/50 dark:border-white/10 hover:border-blue-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20"
                  onMouseEnter={(e) => {
                    if ((window as any).createHoverParticles) {
@@ -1285,7 +1297,7 @@ export default function EnhancedPortfolio() {
           </ScrollTriggeredSection>
 
           {/* Work Experience Section */}
-          <ScrollTriggeredSection animationType="slideRight" className="mb-10 sm:mb-20 px-1 sm:px-4">
+          <ScrollTriggeredSection animationType="slideRight" className="hidden">
             <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-red-200/50 dark:border-white/10 hover:border-red-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-red-500/10 dark:hover:shadow-red-500/20">
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <Briefcase className="text-red-500 dark:text-red-400 sm:w-7 sm:h-7" size={24} />
@@ -1348,7 +1360,7 @@ export default function EnhancedPortfolio() {
           </ScrollTriggeredSection>
 
           {/* Education Section */}
-          <ScrollTriggeredSection animationType="slideLeft" className="mb-10 sm:mb-20 px-1 sm:px-4">
+          <ScrollTriggeredSection animationType="slideLeft" className="hidden">
             <div className="bg-white/40 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-2 sm:p-6 md:p-8 border border-green-200/50 dark:border-white/10 hover:border-green-300/70 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/10 dark:hover:shadow-green-500/20">
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <GraduationCap className="text-green-500 dark:text-green-400 sm:w-7 sm:h-7" size={24} />
@@ -1395,7 +1407,7 @@ export default function EnhancedPortfolio() {
           </ScrollTriggeredSection>
 
           {/* Skills Section */}
-          <ScrollTriggeredSection animationType="slideRight" className="mb-10 sm:mb-20 px-1 sm:px-4">
+          <ScrollTriggeredSection animationType="slideRight" className="hidden">
             <div className="organic-glass-panel p-4 sm:p-6 md:p-8">
               <div className="text-center">
                 <h2 className="organic-heading text-2xl md:text-3xl mb-6">Skills & Technologies</h2>
@@ -1415,19 +1427,16 @@ export default function EnhancedPortfolio() {
           <div className="space-y-14 sm:space-y-20 mb-10 sm:mb-20 px-1 sm:px-4">
             {/* Technical Ledger Variant 1 */}
             <ScrollTriggeredSection animationType="slideRight">
-              <div className="variant-choice-heading !mx-0">
+              <div className="hidden">
                 <span className="variant-choice-number">02</span>
                 <div><p className="variant-choice-name">Ledger variant 1</p><h2 className="organic-heading text-xl md:text-2xl">Classic ledger</h2></div>
               </div>
               <section className="profile-variant rounded-xl p-4 sm:p-7 md:p-9 border-l-4 !border-l-indigo-400/50">
-                <div className="grid lg:grid-cols-[.75fr_1.25fr] gap-6 lg:gap-10 pb-8 border-b border-indigo-900/10 dark:border-indigo-100/10">
+                <div className="grid lg:grid-cols-[.75fr_1.25fr] gap-6 lg:gap-10 pb-8 border-b border-indigo-900/25 dark:border-indigo-100/20">
                   <div>
-                    <p className="variant-kicker mb-2">01 / Introduction</p>
                     <h2 className="organic-heading text-3xl mb-5">About Me</h2>
-                    <div className="space-y-3 text-sm">
+                    <div className="text-base sm:text-lg">
                       <p className="organic-copy"><MapPin className="inline mr-2 text-blue-500" size={16} />Based in <strong>Mureș, Romania</strong></p>
-                      <p className="organic-copy"><Cog className="inline mr-2 text-sky-500" size={16} />Full-time PLC Programmer at <strong>Aages S.A.</strong></p>
-                      <p className="organic-copy"><Calendar className="inline mr-2 text-cyan-500" size={16} />Part-time Event Organizer at <strong>Moments &amp; More S.R.L.</strong></p>
                     </div>
                   </div>
                   <div className="organic-copy space-y-4 leading-relaxed lg:pt-7">
@@ -1435,35 +1444,36 @@ export default function EnhancedPortfolio() {
                   </div>
                 </div>
 
-                <div className="py-8 border-b border-indigo-900/10 dark:border-indigo-100/10">
-                  <p className="variant-kicker mb-2">02 / Practice</p>
+                <div className="py-8 border-b border-indigo-900/25 dark:border-indigo-100/20">
                   <h2 className="organic-heading text-2xl md:text-3xl mb-4">Work Experience</h2>
                   {workItems.map((item) => (
                     <article className="ledger-row" key={item.role}>
-                      <div><h3 className="font-semibold text-slate-800 dark:text-white">{item.role}</h3><p className="text-sm text-indigo-600 dark:text-indigo-300">{item.period}</p></div>
-                      <p className="font-semibold text-slate-700 dark:text-slate-200">{item.company}</p>
-                      <p className="organic-copy text-sm leading-relaxed">{item.description}</p>
+                      <div><h3 className="text-lg font-semibold text-slate-800 dark:text-white">{item.role}</h3><p className="text-base text-indigo-600 dark:text-indigo-300">{item.period}</p></div>
+                      <p className="text-lg font-semibold text-slate-700 dark:text-slate-200">
+                        <a href={item.company.url} target="_blank" rel="noopener noreferrer" className={item.company.className}>
+                          {item.company.name}
+                        </a>
+                      </p>
+                      <p className="organic-copy text-base leading-relaxed">{item.description}</p>
                     </article>
                   ))}
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8 pt-8">
+                <div className="grid lg:grid-cols-[1.2fr_.8fr] gap-8 pt-8">
                   <div>
-                    <p className="variant-kicker mb-2">03 / Education</p>
                     <h2 className="organic-heading text-2xl mb-4">Education</h2>
-                    <div className="space-y-5">{educationItems.map((item) => <article key={item.title}><h3 className="font-semibold text-slate-800 dark:text-white">{item.title}</h3><p className="text-sm text-indigo-600 dark:text-indigo-300">{item.institution} · {item.location}</p><p className="organic-copy text-sm mt-1 leading-relaxed">{item.description}</p></article>)}</div>
+                    <div className="space-y-5">{educationItems.map((item) => <article key={item.title}><h3 className="text-lg font-semibold text-slate-800 dark:text-white">{item.title}</h3><p className="text-base text-emerald-700 dark:text-emerald-300">{item.institution} · {item.location}</p><p className="organic-copy text-base mt-1 leading-relaxed">{item.description}</p></article>)}</div>
                   </div>
                   <div>
-                    <p className="variant-kicker mb-2">04 / Capabilities</p>
                     <h2 className="organic-heading text-2xl mb-4">Skills & Technologies</h2>
-                    <div className="grid sm:grid-cols-2 gap-x-5 gap-y-3">{skills.map((skill, index) => <div className="flex items-center justify-between border-b border-indigo-900/10 dark:border-indigo-100/10 pb-2" key={skill.name}><span className="organic-copy font-semibold text-sm">{skill.name}</span><span className="text-xs font-serif italic text-indigo-500">0{index + 1}</span></div>)}</div>
+                    <div className="skills-ledger-grid grid sm:grid-cols-2 sm:grid-rows-3 sm:grid-flow-col gap-x-8 gap-y-3">{skills.map((skill, index) => <div className="flex items-center justify-between border-b border-indigo-900/10 dark:border-indigo-100/10 py-3" key={skill.name}><span className="organic-copy font-semibold text-base">{skill.name}</span><span className="text-sm font-serif italic text-indigo-500">0{index + 1}</span></div>)}</div>
                   </div>
                 </div>
               </section>
             </ScrollTriggeredSection>
 
             {/* Technical Ledger Variant 2 */}
-            <ScrollTriggeredSection animationType="slideLeft">
+            <ScrollTriggeredSection animationType="slideLeft" className="hidden">
               <div className="variant-choice-heading !mx-0">
                 <span className="variant-choice-number">03</span>
                 <div><p className="variant-choice-name">Ledger variant 2</p><h2 className="organic-heading text-xl md:text-2xl">Split-index ledger</h2></div>
@@ -1483,7 +1493,7 @@ export default function EnhancedPortfolio() {
                     <div className="organic-copy space-y-3 leading-relaxed pb-7 border-b border-indigo-900/10 dark:border-indigo-100/10">{aboutParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
                     <div className="py-7 border-b border-indigo-900/10 dark:border-indigo-100/10">
                       <div className="flex items-end justify-between gap-4 mb-4"><div><p className="variant-kicker">Index / 02</p><h2 className="organic-heading text-2xl">Work Experience</h2></div><Briefcase className="text-indigo-500/60" size={22}/></div>
-                      <div className="space-y-1">{workItems.map((item, index) => <article className="grid sm:grid-cols-[2.5rem_1fr] gap-3 py-4 border-t border-indigo-900/10 dark:border-indigo-100/10 first:border-0" key={item.role}><span className="font-serif italic text-indigo-500">0{index + 1}</span><div><div className="flex flex-wrap justify-between gap-2"><h3 className="font-semibold text-slate-800 dark:text-white">{item.role} · {item.company}</h3><span className="text-xs text-indigo-600 dark:text-indigo-300">{item.period}</span></div><p className="organic-copy text-sm mt-2 leading-relaxed">{item.description}</p></div></article>)}</div>
+                      <div className="space-y-1">{workItems.map((item, index) => <article className="grid sm:grid-cols-[2.5rem_1fr] gap-3 py-4 border-t border-indigo-900/10 dark:border-indigo-100/10 first:border-0" key={item.role}><span className="font-serif italic text-indigo-500">0{index + 1}</span><div><div className="flex flex-wrap justify-between gap-2"><h3 className="font-semibold text-slate-800 dark:text-white">{item.role} · {item.company.name}</h3><span className="text-xs text-indigo-600 dark:text-indigo-300">{item.period}</span></div><p className="organic-copy text-sm mt-2 leading-relaxed">{item.description}</p></div></article>)}</div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-7 pt-7">
                       <div><p className="variant-kicker mb-1">Index / 03</p><h2 className="organic-heading text-xl mb-3">Education</h2><div className="space-y-4">{educationItems.map((item) => <article key={item.title}><h3 className="font-semibold text-slate-800 dark:text-white">{item.title}</h3><p className="text-xs text-emerald-700 dark:text-emerald-300">{item.institution} · {item.location}</p><p className="organic-copy text-xs mt-1 leading-relaxed">{item.description}</p></article>)}</div></div>
@@ -1495,7 +1505,7 @@ export default function EnhancedPortfolio() {
             </ScrollTriggeredSection>
 
             {/* Technical Ledger Variant 3 */}
-            <ScrollTriggeredSection animationType="float">
+            <ScrollTriggeredSection animationType="float" className="hidden">
               <div className="variant-choice-heading !mx-0">
                 <span className="variant-choice-number">04</span>
                 <div><p className="variant-choice-name">Ledger variant 3</p><h2 className="organic-heading text-xl md:text-2xl">Blueprint ledger</h2></div>
@@ -1513,7 +1523,7 @@ export default function EnhancedPortfolio() {
                 <div className="py-7 border-b-2 border-sky-700/15 dark:border-sky-200/10">
                   <div className="flex items-center gap-3 mb-5"><span className="font-mono text-sm text-sky-700 dark:text-sky-300">02</span><h2 className="organic-heading text-2xl md:text-3xl">Work Experience</h2></div>
                   <div className="grid lg:grid-cols-3 gap-px bg-sky-700/15 dark:bg-sky-200/10 border border-sky-700/15 dark:border-sky-200/10">
-                    {workItems.map((item, index) => <article className="bg-slate-50/50 dark:bg-slate-900/45 p-5" key={item.role}><div className="flex justify-between mb-5"><item.icon className="text-sky-600 dark:text-sky-300" size={19}/><span className="font-mono text-xs text-sky-700/60 dark:text-sky-300/60">W-0{index + 1}</span></div><h3 className="font-semibold text-slate-800 dark:text-white">{item.role}</h3><p className="text-sm font-semibold text-sky-700 dark:text-sky-300">{item.company}</p><p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">{item.period}</p><p className="organic-copy text-sm leading-relaxed">{item.description}</p></article>)}
+                    {workItems.map((item, index) => <article className="bg-slate-50/50 dark:bg-slate-900/45 p-5" key={item.role}><div className="flex justify-between mb-5"><item.icon className="text-sky-600 dark:text-sky-300" size={19}/><span className="font-mono text-xs text-sky-700/60 dark:text-sky-300/60">W-0{index + 1}</span></div><h3 className="font-semibold text-slate-800 dark:text-white">{item.role}</h3><p className="text-sm font-semibold text-sky-700 dark:text-sky-300">{item.company.name}</p><p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">{item.period}</p><p className="organic-copy text-sm leading-relaxed">{item.description}</p></article>)}
                   </div>
                 </div>
 
