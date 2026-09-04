@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronDown, MapPin, Briefcase, GraduationCap, Code, Mail, Github, ExternalLink, Cpu, Globe, Cog, Zap, Monitor, Settings, Calendar, Download } from 'lucide-react';
+import { ChevronDown, MapPin, Briefcase, GraduationCap, Code, Mail, Github, ExternalLink, Cpu, Globe, Cog, Zap, Monitor, Settings, Calendar, Download, User, Layers } from 'lucide-react';
 import { metaData, socialLinks } from './lib/config';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
@@ -1434,7 +1434,10 @@ export default function EnhancedPortfolio() {
               <section className="profile-variant rounded-xl p-4 sm:p-7 md:p-9 border-l-4 !border-l-indigo-400/50">
                 <div className="grid lg:grid-cols-[.75fr_1.25fr] gap-6 lg:gap-10 pb-8 border-b border-indigo-900/25 dark:border-indigo-100/20">
                   <div>
-                    <h2 className="organic-heading text-3xl mb-5">About Me</h2>
+                    <div className="flex items-center gap-3 mb-5">
+                      <User className="text-indigo-500 dark:text-indigo-300 shrink-0" size={28} />
+                      <h2 className="organic-heading text-3xl">About Me</h2>
+                    </div>
                     <div className="text-base sm:text-lg">
                       <p className="organic-copy"><MapPin className="inline mr-2 text-blue-500" size={16} />Based in <strong>Mureș, Romania</strong></p>
                     </div>
@@ -1445,7 +1448,10 @@ export default function EnhancedPortfolio() {
                 </div>
 
                 <div className="py-8 border-b border-indigo-900/25 dark:border-indigo-100/20">
-                  <h2 className="organic-heading text-2xl md:text-3xl mb-4">Work Experience</h2>
+                  <div className="flex items-center gap-3 mb-4">
+                    <Briefcase className="text-indigo-500 dark:text-indigo-300 shrink-0" size={26} />
+                    <h2 className="organic-heading text-2xl md:text-3xl">Work Experience</h2>
+                  </div>
                   {workItems.map((item) => (
                     <article className="ledger-row" key={item.role}>
                       <div><h3 className="text-lg font-semibold text-slate-800 dark:text-white">{item.role}</h3><p className="text-base text-indigo-600 dark:text-indigo-300">{item.period}</p></div>
@@ -1461,11 +1467,17 @@ export default function EnhancedPortfolio() {
 
                 <div className="grid lg:grid-cols-[1.2fr_.8fr] gap-8 pt-8">
                   <div>
-                    <h2 className="organic-heading text-2xl mb-4">Education</h2>
+                    <div className="flex items-center gap-3 mb-4">
+                      <GraduationCap className="text-emerald-600 dark:text-emerald-300 shrink-0" size={24} />
+                      <h2 className="organic-heading text-2xl">Education</h2>
+                    </div>
                     <div className="space-y-5">{educationItems.map((item) => <article key={item.title}><h3 className="text-lg font-semibold text-slate-800 dark:text-white">{item.title}</h3><p className="text-base text-emerald-700 dark:text-emerald-300">{item.institution} · {item.location}</p><p className="organic-copy text-base mt-1 leading-relaxed">{item.description}</p></article>)}</div>
                   </div>
                   <div>
-                    <h2 className="organic-heading text-2xl mb-4">Skills & Technologies</h2>
+                    <div className="flex items-center gap-3 mb-4">
+                      <Layers className="text-indigo-500 dark:text-indigo-300 shrink-0" size={24} />
+                      <h2 className="organic-heading text-2xl">Skills & Technologies</h2>
+                    </div>
                     <div className="skills-ledger-grid grid sm:grid-cols-2 sm:grid-rows-3 sm:grid-flow-col gap-x-8 gap-y-3">{skills.map((skill, index) => <div className="flex items-center justify-between border-b border-indigo-900/10 dark:border-indigo-100/10 py-3" key={skill.name}><span className="organic-copy font-semibold text-base">{skill.name}</span><span className="text-sm font-serif italic text-indigo-500">0{index + 1}</span></div>)}</div>
                   </div>
                 </div>
